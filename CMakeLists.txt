@@ -21,17 +21,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-add_service_files(
-   FILES
-   saveMap.srv
-   optimizeMap.srv
-   saveGridmap.srv
-)
-
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-)
 
 set(ALL_TARGET_LIBRARIES "")
 
