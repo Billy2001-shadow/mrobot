@@ -1,4 +1,5 @@
 #include "subscriber/tf_listener.hpp"
+#include "Eigen/src/Core/Matrix.h"
 
 #include <Eigen/Geometry>
 
@@ -36,4 +37,22 @@ bool TFListener::TransformToMatrix(const tf::StampedTransform &transform,
 
   return true;
 }
+
+bool TFListener::TransformToVector(
+    std::vector<Eigen::Vector2f> &transform_pose_vector) {
+  try {
+    tf::StampedTransform transform;
+    listener_.lookupTransform(base_frame_id_, child_frame_id_, ros::Time(0),
+                              transform);
+
+    Eigen::Vector2f pose_vec(transform.getOrigin().getX(),
+                             transform.getOrigin().getY());
+    transform_pose_vector.push_back(pose_vec);
+
+    return true;
+  } catch (tf::TransformException &ex) {
+    return false;
+  }
+}
+
 } // namespace mrobot_frame

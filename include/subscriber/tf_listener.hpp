@@ -9,21 +9,25 @@
 
 namespace mrobot_frame {
 class TFListener {
-  public:
-    TFListener(ros::NodeHandle& nh, std::string base_frame_id, std::string child_frame_id);
-    TFListener() = default;
+public:
+  TFListener(ros::NodeHandle &nh, std::string base_frame_id,
+             std::string child_frame_id);
+  TFListener() = default;
 
-    bool LookupData(Eigen::Matrix4f& transform_matrix);
-  
-  private:
-    bool TransformToMatrix(const tf::StampedTransform& transform, Eigen::Matrix4f& transform_matrix);
+  bool LookupData(Eigen::Matrix4f &transform_matrix);
+  bool TransformToVector(Eigen::Vector3d &transform_vector);
+  bool TransformToVector(std::vector<Eigen::Vector2f> &transform_pose_vector);
 
-  private:
-    ros::NodeHandle nh_;
-    tf::TransformListener listener_;
-    std::string base_frame_id_;
-    std::string child_frame_id_;
+private:
+  bool TransformToMatrix(const tf::StampedTransform &transform,
+                         Eigen::Matrix4f &transform_matrix);
+
+private:
+  ros::NodeHandle nh_;
+  tf::TransformListener listener_;
+  std::string base_frame_id_;
+  std::string child_frame_id_;
 };
-}
+} // namespace mrobot_frame
 
 #endif
