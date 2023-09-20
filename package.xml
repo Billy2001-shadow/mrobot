@@ -24,6 +24,8 @@
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>open_karto</build_depend>
+  <build_depend>sparse_bundle_adjustment</build_depend>
   <!-- <build_depend>tf</build_depend> -->
   <build_depend>libpcl-all-dev</build_depend>
   <build_export_depend>laser_geometry</build_export_depend>
@@ -39,6 +41,8 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>open_karto</exec_depend>
+  <exec_depend>sparse_bundle_adjustment</exec_depend>
   <!-- <exec_depend>tf</exec_depend> -->
   <exec_depend>libpcl-all</exec_depend>
 

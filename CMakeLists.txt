@@ -7,6 +7,8 @@ add_compile_options(-std=c++14)
 add_definitions(-std=c++14)
 
 find_package(catkin REQUIRED COMPONENTS
+  open_karto
+  sparse_bundle_adjustment
   laser_geometry
   pcl_conversions
   pcl_ros
@@ -19,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   std_srvs
   std_msgs
+  
 )
 
 
@@ -42,6 +45,10 @@ list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 list(REMOVE_ITEM ALL_SRCS ${THIRD_PARTY_SRCS})
 
 
-add_executable(${PROJECT_NAME}_data_pretreat_node src/apps/data_pretreat_node.cpp ${ALL_SRCS})
-add_dependencies(${PROJECT_NAME}_data_pretreat_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_data_pretreat_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+# add_executable(${PROJECT_NAME}_data_pretreat_node src/apps/data_pretreat_node.cpp ${ALL_SRCS})
+# add_dependencies(${PROJECT_NAME}_data_pretreat_node ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(${PROJECT_NAME}_data_pretreat_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+
+add_executable(${PROJECT_NAME}_front_end_node src/apps/front_end_node.cpp ${ALL_SRCS})
+add_dependencies(${PROJECT_NAME}_front_end_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
