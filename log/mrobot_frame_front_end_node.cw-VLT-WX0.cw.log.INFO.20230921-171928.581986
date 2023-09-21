@@ -1,0 +1,17 @@
+Log file created at: 2023/09/21 17:19:28
+Running on machine: cw-VLT-WX0
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I0921 17:19:28.667331 581986 mapping.cpp:72] Update map
+I0921 17:19:48.284371 581986 mapping.cpp:72] Update map
+I0921 17:19:48.593777 581986 mapping.cpp:72] Update map
+I0921 17:19:48.880069 581986 mapping.cpp:72] Update map
+I0921 17:19:49.635833 581986 mapping.cpp:72] Update map
+I0921 17:19:50.091504 581986 mapping.cpp:72] Update map
+I0921 17:19:50.490931 581986 mapping.cpp:72] Update map
+I0921 17:19:50.588102 581986 mapping.cpp:72] Update map
+I0921 17:19:51.196661 581986 mapping.cpp:72] Update map
+I0921 17:19:51.699779 581986 mapping.cpp:72] Update map
+I0921 17:19:52.094704 581986 mapping.cpp:72] Update map
+I0921 17:19:53.276616 581986 mapping.cpp:72] Update map
+I0921 17:19:53.787554 581986 mapping.cpp:72] Update map
+I0921 17:19:54.969841 581986 mapping.cpp:72] Update map

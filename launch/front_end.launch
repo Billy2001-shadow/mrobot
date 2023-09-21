@@ -4,7 +4,7 @@
     <!-- 使用bag的时间戳 -->
     <param name="use_sim_time" value="true" />
     <!-- <param name="scan_topic" value="base_scan"/>
-    <param name="cloud_topic" value="pretreat_cloud"/>
+    <param name="cloud_topic" value="base_scan"/>
     <param name="laser_frame" value="base_laser"/>
     <param name="odom_frame" value="odom"/> -->
     <param name="scan_topic" value="scan"/>

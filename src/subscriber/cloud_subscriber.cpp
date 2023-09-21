@@ -40,9 +40,14 @@ void CloudSubscriber::msg_callback(
 
   RangesData ranges_data;
   ranges_data.time = scan_msg->header.stamp;
+  double angle_reading = scan_msg->angle_min;
+  double angle_increment = (scan_msg->angle_max - scan_msg->angle_min) /
+                           (scan_msg->ranges.size() - 1);
   for (std::vector<float>::const_iterator it = scan_msg->ranges.begin();
        it != scan_msg->ranges.end(); it++) {
     ranges_data.readings.push_back(*it);
+    ranges_data.angles.push_back(angle_reading);
+    angle_reading += angle_increment;
   }
 
   new_ranges_data_.push_back(ranges_data);

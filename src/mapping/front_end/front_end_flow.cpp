@@ -15,12 +15,16 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle &nh, std::string cloud_topic,
   tf_pose_ptr_ = std::make_shared<TFListener>(nh, odom_frame, laser_frame);
 
   front_end_ptr_ = std::make_shared<FrontEnd>(); //前端的核心算法模块
+  occupancygrid_pub_ptr_ =
+      std::make_shared<GridmapPublisher>(nh, "occupancygrid", "odom", 1);
   // tf_pose_ptr_->getOdomPose(karto::Pose2 &karto_pose, const ros::Time &t)
   // 获取某一个时刻的机器人位姿 karto_pose的形式
+  map_update_interval_.fromSec(5.0);
 }
 
 bool FrontEndFlow::Run() {
   // std::cout << "run run run run run run " << std::endl;
+  ros::Time last_map_update(0, 0);
   if (!ReadData())
     return false;
   while (HasData()) {
@@ -33,6 +37,15 @@ bool FrontEndFlow::Run() {
     if (UpdateLaserOdometry()) {
       std::cout << "可视化 可视化 可视化 可视化 可视化" << std::endl;
       front_end_ptr_->publishPoseVisualization();
+      //在这个地方建图试试看
+      if (!got_map_ || (current_ranges_data_.time - last_map_update) >
+                           map_update_interval_) {
+        if (updateMap()) {
+          last_map_update = current_ranges_data_.time;
+          got_map_ = true;
+          ROS_DEBUG("Updated the map");
+        }
+      }
     }
   }
   // std::cout << "No No Run Run Run Run Run Run Run!" << std::endl;
@@ -67,6 +80,15 @@ bool FrontEndFlow::UpdateLaserOdometry() {
 
 bool FrontEndFlow::publishLaserOdomVisualization() {
   //在这个地方可视化激光里程计的位姿(只可视化出关键帧的)
+
+  return true;
+}
+
+bool FrontEndFlow::updateMap() {
+  //在这里直接取数组，然后转换成ROS格式发布出去
+  nav_msgs::OccupancyGrid ros_map;
+  front_end_ptr_->GetRosMap(ros_map);
+  occupancygrid_pub_ptr_->Publish(ros_map);
 
   return true;
 }

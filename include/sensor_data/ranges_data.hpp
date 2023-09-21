@@ -10,6 +10,7 @@ class RangesData {
 
 public:
   ros::Time time;
+  std::vector<double> angles;
   std::vector<double> readings;
 };
 } // namespace mrobot_frame

@@ -131,14 +131,24 @@ Visualization Manager:
       Marker Topic: /mrobot_frame_front_end_node/visualization_marker_array
       Name: MarkerArray
       Namespaces:
-        mrobot_frame: true
+        {}
       Queue Size: 100
+      Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /occupancygrid
+      Unreliable: false
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -162,7 +172,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 11.589202880859375
+      Distance: 43.74162292480469
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

@@ -1,11 +1,12 @@
 #include "mapping/front_end/front_end.hpp"
 #include "global_defination/global_defination.h"
 #include "glog/logging.h"
+#include "mapping/mapping/mapping.hpp"
 
 namespace mrobot_frame {
 FrontEnd::FrontEnd() {
   mapper_ = new karto::Mapper();
-
+  mapping_ptr_ = std::make_shared<Mapping>();
   InitWithConfig();
 }
 
@@ -196,9 +197,17 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
 
     pose_vector_.push_back(corrected_pose.GetX());
     pose_vector_.push_back(corrected_pose.GetY());
-
-    LOG(INFO) << "x = " << corrected_pose.GetX()
-              << "y = " << corrected_pose.GetY();
+    // std::cout << "size = " << ranges_data.angles.size() << std::endl;
+    // for (int i = 0; i < ranges_data.angles.size(); i++) {
+    //   std::cout << "," << ranges_data.angles[i] << std::endl;
+    // }
+    // LOG(INFO) << "x = " << corrected_pose.GetX()
+    //           << "y = " << corrected_pose.GetY();
+    KeyFrame new_key_frame;
+    new_key_frame.corrected_pose = corrected_pose;
+    new_key_frame.ranges_data = ranges_data;
+    //直接处理新的关键帧
+    UpdateWithNewFrame(new_key_frame);
   }
   std::cout << "processed = " << processed << std::endl;
   return processed;
@@ -206,8 +215,18 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
 
 /*
 根据新的关键帧更新局部地图，并设置SetInputTarget(local_map_ptr_);
+从这里返回关键帧，设置为外部可调用的函数
 */
-bool FrontEnd::UpdateWithNewFrame(const Frame &new_key_frame) { return true; }
+bool FrontEnd::UpdateWithNewFrame(KeyFrame &new_key_frame) {
+  //更新rosmap试试看
+  mapping_ptr_->OccupanyMapping(new_key_frame);
+  return true;
+}
+bool FrontEnd::GetRosMap(nav_msgs::OccupancyGrid &ros_map) {
+  ros_map = mapping_ptr_->GetCurrentMap();
+
+  return true;
+}
 
 void FrontEnd::publishPoseVisualization() {
 
