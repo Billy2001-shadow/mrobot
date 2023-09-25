@@ -18,8 +18,8 @@ CloudSubscriber::CloudSubscriber(ros::NodeHandle &nh, std::string topic_name,
   // scan_filter_->registerCallback(
   //     boost::bind(&CloudSubscriber::msg_callback, this, _1)); //
   dataset_ = new karto::Dataset();
-  if (!nh_.getParam("base_frame", base_frame_))
-    base_frame_ = "base_laser_link";
+  if (!nh_.getParam("laser_frame", laser_frame_))
+    laser_frame_ = "base_laser_link";
 
   subscriber_ = nh_.subscribe(topic_name, buff_size,
                               &CloudSubscriber::msg_callback, this);
@@ -37,7 +37,6 @@ CloudSubscriber::~CloudSubscriber() {
 void CloudSubscriber::msg_callback(
     const sensor_msgs::LaserScan::ConstPtr &scan_msg) {
   buff_mutex_.lock();
-
   RangesData ranges_data;
   ranges_data.time = scan_msg->header.stamp;
   double angle_reading = scan_msg->angle_min;
@@ -95,7 +94,7 @@ CloudSubscriber::getLaser(const sensor_msgs::LaserScan::ConstPtr &scan) {
     ident.frame_id_ = scan->header.frame_id;
     ident.stamp_ = scan->header.stamp;
     try {
-      tf_.transformPose(base_frame_, ident, laser_pose);
+      tf_.transformPose(laser_frame_, ident, laser_pose);
     } catch (tf::TransformException e) {
       ROS_WARN("Failed to compute laser pose, aborting initialization (%s)",
                e.what());
@@ -113,7 +112,7 @@ CloudSubscriber::getLaser(const sensor_msgs::LaserScan::ConstPtr &scan) {
 
     tf::Vector3 v;
     v.setValue(0, 0, 1 + laser_pose.getOrigin().z());
-    tf::Stamped<tf::Vector3> up(v, scan->header.stamp, base_frame_);
+    tf::Stamped<tf::Vector3> up(v, scan->header.stamp, laser_frame_);
 
     try {
       tf_.transformPoint(scan->header.frame_id, up, up);

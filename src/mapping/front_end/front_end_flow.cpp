@@ -6,10 +6,11 @@ namespace mrobot_frame {
 FrontEndFlow::FrontEndFlow(ros::NodeHandle &nh, std::string cloud_topic,
                            std::string laser_odom_topic) {
   std::string laser_frame, odom_frame;
-  nh.param<std::string>("laser_frame", laser_frame, "base_laser_link");
+  nh.param<std::string>("laser_frame", laser_frame, "base_laser");
   nh.param<std::string>("odom_frame", odom_frame, "odom");
 
   std::cout << "cloud_topic = " << cloud_topic << std::endl;
+  std::cout << "laser_frame = " << laser_frame << std::endl;
   //订阅点云信息  tf_pose_ptr_可以优化为寻找所需时间的tf位姿
   cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, cloud_topic, 100000);
   tf_pose_ptr_ = std::make_shared<TFListener>(nh, odom_frame, laser_frame);

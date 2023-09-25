@@ -16,6 +16,7 @@ bool TFListener::getOdomPose(karto::Pose2 &karto_pose, const ros::Time &t) {
       t, child_frame_id_);
   tf::Stamped<tf::Transform> odom_pose;
   try {
+
     listener_.transformPose(base_frame_id_, ident, odom_pose);
   } catch (tf::TransformException e) {
     ROS_WARN("Failed to compute odom pose, skipping scan (%s)", e.what());

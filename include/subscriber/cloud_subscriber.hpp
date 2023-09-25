@@ -50,7 +50,7 @@ private:
   karto::LaserRangeFinder *laser_;
 
   std::string odom_frame_ = "odom"; //里程计坐标系的名字
-  std::string base_frame_ = "base_laser_link";
+  std::string laser_frame_ = "base_laser_link";
 };
 } // namespace mrobot_frame
 
