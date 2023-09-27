@@ -116,7 +116,7 @@ void Mapping::OccupanyMapping(KeyFrame &current_keyframe) {
     double dist = current_keyframe.ranges_data.readings[id];
     double angle = current_keyframe.ranges_data.angles[id];
 
-    if (std::isinf(dist) || std::isnan(dist))
+    if (std::isinf(dist) || std::isnan(dist) || (std::abs(dist) >= 20))
       continue;
 
     double theta = robotPose(2);
@@ -170,7 +170,7 @@ void Mapping::OccupanyMapping(KeyFrame &current_keyframe) {
         // std::cerr << "beamPointIndex if invalid!!!" << std::endl;
       }
 
-    }
+    } // else if
 
     else {
       ROS_ERROR("choose correct mapping method");
@@ -318,17 +318,28 @@ nav_msgs::OccupancyGrid Mapping::GetCurrentMap() {
 
   else if (mapping_method_ == "count_mapping") {
     for (int i = 0; i < Gridmap.info.width * Gridmap.info.height; i++) {
-      if ((pMapHits[i] + pMapMisses[i]) != 0) {
+      if (pMapHits[i] + pMapMisses[i] != 0) {
         Gridmap.data[i] =
             (double)pMapHits[i] / (pMapHits[i] + pMapMisses[i]) * 100;
-        if (Gridmap.data[i] >= 35)
+        if (Gridmap.data[i] >= 40)
           Gridmap.data[i] = 100;
+        if (Gridmap.data[i] <= 20)
+          Gridmap.data[i] = 0;
       } else {
         Gridmap.data[i] = -1;
       }
+
+      // if ((pMapHits[i] + pMapMisses[i]) != 0) {
+      //   Gridmap.data[i] =
+      //       (double)pMapHits[i] / (pMapHits[i] + pMapMisses[i]) * 100;
+      //   if (Gridmap.data[i] >= 35) {
+      //     Gridmap.data[i] = 100;
+      //   } else {
+      //     Gridmap.data[i] = -1;
+      //   }
+      // }
     }
   }
-
   // map_mutex_.unlock();
   return Gridmap;
 }

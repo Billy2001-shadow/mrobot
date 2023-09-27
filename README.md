@@ -20,7 +20,7 @@
 visualization_msgs::MarkerArray marray; 的用法
 ```
 
-![image-20230917171139204](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230917171139204.png)
+![image-20230917171139204](./README.assets/image-20230917171139204.png)
 
 
 
@@ -82,4 +82,149 @@ kt_bool LaserRangeFinder::Validate(SensorData *pSensorData) {
   return true;
 }
 ```
+
+
+
+
+
+
+
+![image-20230926103430279](./README.assets/image-20230926103430279.png)
+
+
+
+
+
+大于60的比例认为是障碍物
+
+
+
+小于
+
+
+
+40的障碍物概率是 路过两次 击中三次 
+
+路过两次 
+
+pMapHits[i] + pMapMisses[i] == 0       
+
+Gridmap.data[i] = 0表示科通行区域
+
+- 
+
+设置雷达的最大探测距离，这个太长了。大于多少的就丢弃掉
+
+minimum_travel_distance
+
+
+
+
+
+一定要抓住基于PCL库的点云匹配适合3D激光雷达，但是并不适用于2d的激光雷达匹配。融合难度比较大，目前的开源框架没有这么干的。
+
+总结一下目前2d激光slam在前端计算位姿时用的方法。
+
+介绍一下之前做这个框架的人，为什么用PCL库没啥问题 在点云匹配这一块。
+
+
+
+
+
+
+
+
+
+## intel.bag
+
+![image-20230926202033639](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926202033639.png)
+
+​																																（GT）
+
+
+
+![image-20230926155212150](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926155212150.png)
+
+​																			        Mrobot
+
+![image-20230926160234800](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926160234800.png)
+
+![image-20230926165915899](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926165915899.png)
+
+​																														        	Karto slam
+
+![image-20230926175031104](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926175031104.png)
+
+​																														GMapping
+
+![image-20230926175552441](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926175552441.png)
+
+​																																GMapping
+
+![image-20230926180332412](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926180332412.png)
+
+​																															Karto slam
+
+
+
+![image-20230926202211939](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926202211939.png)
+
+​																														(Mrobot)
+
+
+
+![image-20230926202153837](/home/cw/test/test_mrobot_ws/src/mrobot/README.assets/image-20230926202153837.png)
+
+- **geometric** and **photometric** 3D mapping pipeline(better geometric and photometric accuracy )
+- real-time hierarchical volumetric neural radiance fields
+- 
+
+
+
+
+
+- geometric accuracy（Depth L1)
+- photometric accuracy (PSNR - peak signal-to-noise ratio)  图像质量评估的指标
+
+
+
+SLAM为fit a neural radiance field of the scene  提供了
+
+- by providing **accurate pose estimates** and **depth-maps with associated uncertainty.** 
+- The estimated poses and depth-maps from dense SLAM, weighted by their marginal covariance estimates, provide the ideal source of information to optimize a hierarchical hash-based volumetric neural radiance field. W
+
+
+
+
+
+SLAM提供了
+
+- 3D poses
+- dense depth-maps,and probabilistic uncertainties
+
+
+
+
+
+Our Frontend's Pointcloud
+
+**Mesh** Resulting front TSDF Fusion
+
+
+
+Ablation Experiments 消融实验
+
+Replica Dataset 副样本数据集(多跑几个场景的实验需要用到)
+
+
+
+
+
+## 2023.09.27
+
+
+
+
+
+
 

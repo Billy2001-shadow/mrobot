@@ -36,7 +36,7 @@ bool FrontEndFlow::Run() {
     }
 
     if (UpdateLaserOdometry()) {
-      std::cout << "可视化 可视化 可视化 可视化 可视化" << std::endl;
+      // std::cout << "可视化 可视化 可视化 可视化 可视化" << std::endl;
       front_end_ptr_->publishPoseVisualization();
       //在这个地方建图试试看
       if (!got_map_ || (current_ranges_data_.time - last_map_update) >

@@ -1,9 +1,9 @@
-#include <ros/ros.h>
-
 #include "global_defination//global_defination.h"
 #include "glog/logging.h"
-#include "mapping/front_end/front_end_flow.hpp"
 #include "ros/init.h"
+#include <ros/ros.h>
+
+#include "mapping/front_end/front_end_flow.hpp"
 
 using namespace mrobot_frame;
 
