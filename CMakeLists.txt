@@ -10,8 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   open_karto
   sparse_bundle_adjustment
   laser_geometry
-  pcl_conversions
-  pcl_ros
+  # pcl_conversions
+  # pcl_ros
   roscpp
   rospy
   geometry_msgs
@@ -24,7 +24,17 @@ find_package(catkin REQUIRED COMPONENTS
   
 )
 
+add_message_files(
+  FILES
+  keyframe.msg
+)
 
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
+
+ 
 set(ALL_TARGET_LIBRARIES "")
 
 include(cmake/glog.cmake)
