@@ -4,6 +4,7 @@
 #include "mapping/mapping/mapping.hpp"
 #include "mapping/spa_solver/spa_solver.hpp"
 #include "open_karto/Mapper.h"
+#include "sensor_data/key_frame.hpp"
 #include "sensor_data/ranges_data.hpp"
 #include "subscriber/tf_listener.hpp"
 #include "visualization_msgs/MarkerArray.h"
@@ -27,16 +28,20 @@ public:
               karto::Pose2 &karto_pose);
   bool SetInitPose();
   void publishPoseVisualization();
-  bool GetRosMap(nav_msgs::OccupancyGrid &ros_map);
+  bool HasNewKeyFrame();
+  void GetLatestKeyFrame(KeyFrame &key_frame);
 
 private:
   bool InitWithConfig();
   bool InitParam(const YAML::Node &config_node);
-  bool UpdateWithNewFrame(KeyFrame &new_key_frame);
   bool GetPredictPose(Eigen::Matrix4f &MatrixPose,
                       double time); //获取成功就true
+  void ResetParam();
 
 private:
+  bool has_new_key_frame_;
+  KeyFrame current_key_frame_;
+  std::deque<KeyFrame> key_frames_deque_;
   karto::Mapper *mapper_;
   SpaSolver *solver_;
   std::vector<kt_double> pose_vector_;

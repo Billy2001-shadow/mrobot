@@ -26,7 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
   FILES
-  keyframe.msg
+  keyframemsg.msg
 )
 
 generate_messages(
@@ -34,7 +34,7 @@ generate_messages(
    std_msgs
  )
 
- 
+
 set(ALL_TARGET_LIBRARIES "")
 
 include(cmake/glog.cmake)
@@ -46,7 +46,9 @@ include(cmake/g2o.cmake)
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 include(cmake/global_defination.cmake)
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
 
 file(GLOB_RECURSE ALL_SRCS "*.cpp")
 file(GLOB_RECURSE NODE_SRCS "src/apps/*_node.cpp")
@@ -62,3 +64,7 @@ list(REMOVE_ITEM ALL_SRCS ${THIRD_PARTY_SRCS})
 add_executable(${PROJECT_NAME}_front_end_node src/apps/front_end_node.cpp ${ALL_SRCS})
 add_dependencies(${PROJECT_NAME}_front_end_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+
+add_executable(${PROJECT_NAME}_mapping_node src/apps/mapping_node.cpp ${ALL_SRCS})
+add_dependencies(${PROJECT_NAME}_mapping_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_mapping_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})

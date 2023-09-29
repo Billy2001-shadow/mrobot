@@ -1,42 +1,35 @@
-// #include "publisher/key_frame_publisher.hpp"
+#include "publisher/key_frame_publisher.hpp"
 
-// #include <Eigen/Dense>
+namespace mrobot_frame {
+KeyFramePublisher::KeyFramePublisher(ros::NodeHandle &nh,
+                                     std::string topic_name,
+                                     std::string frame_id, int buff_size)
+    : nh_(nh), frame_id_(frame_id) {
 
-// namespace mrobot_frame {
-// KeyFramePublisher::KeyFramePublisher(ros::NodeHandle &nh,
-//                                      std::string topic_name,
-//                                      std::string frame_id, int buff_size)
-//     : nh_(nh), frame_id_(frame_id) {
+  publisher_ = nh_.advertise<mrobot_frame::keyframemsg>(topic_name, buff_size);
+}
 
-//   publisher_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
-//       topic_name, buff_size);
-// }
+void KeyFramePublisher::Publish(KeyFrame &key_frame) {
+  mrobot_frame::keyframemsg keyframe_stamped;
 
-// void KeyFramePublisher::Publish(KeyFrame &key_frame) {
-//   geometry_msgs::PoseWithCovarianceStamped pose_stamped;
+  keyframe_stamped.header.stamp = key_frame.ranges_data.time;
+  keyframe_stamped.header.frame_id = frame_id_;
+  keyframe_stamped.header.seq = 1;
 
-//   ros::Time ros_time((float)key_frame.time);
-//   pose_stamped.header.stamp = ros_time;
-//   pose_stamped.header.frame_id = frame_id_;
+  keyframe_stamped.Pose2d.at(0) = key_frame.corrected_pose.GetX();
+  keyframe_stamped.Pose2d.at(1) = key_frame.corrected_pose.GetY();
+  keyframe_stamped.Pose2d.at(2) = key_frame.corrected_pose.GetHeading();
 
-//   pose_stamped.header.seq = key_frame.index;
+  for (int i = 0; i < key_frame.ranges_data.angles.size(); i++) {
+    keyframe_stamped.angles.push_back(key_frame.ranges_data.angles.at(i));
+  }
+  for (int i = 0; i < key_frame.ranges_data.readings.size(); i++) {
+    keyframe_stamped.readings.push_back(key_frame.ranges_data.readings.at(i));
+  }
+  publisher_.publish(keyframe_stamped);
+}
 
-//   pose_stamped.pose.pose.position.x = key_frame.pose(0, 3);
-//   pose_stamped.pose.pose.position.y = key_frame.pose(1, 3);
-//   pose_stamped.pose.pose.position.z = key_frame.pose(2, 3);
-
-//   Eigen::Quaternionf q = key_frame.GetQuaternion();
-//   pose_stamped.pose.pose.orientation.x = q.x();
-//   pose_stamped.pose.pose.orientation.y = q.y();
-//   pose_stamped.pose.pose.orientation.z = q.z();
-//   pose_stamped.pose.pose.orientation.w = q.w();
-
-//   pose_stamped.pose.covariance[0] = (double)key_frame.index;
-
-//   publisher_.publish(pose_stamped);
-// }
-
-// bool KeyFramePublisher::HasSubscribers() {
-//   return publisher_.getNumSubscribers() != 0;
-// }
-// } // namespace mrobot_frame
+bool KeyFramePublisher::HasSubscribers() {
+  return publisher_.getNumSubscribers() != 0;
+}
+} // namespace mrobot_frame

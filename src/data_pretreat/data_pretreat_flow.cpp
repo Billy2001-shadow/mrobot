@@ -3,9 +3,6 @@
  * @Author: Chen Wu
  * @Date: 2023-09-17 12:38:42
  */
-#include "global_defination/global_defination.h"
-#include "glog/logging.h"
-
 #include "data_pretreat/data_pretreat_flow.hpp"
 #include <cstdint>
 #include <pcl/common/transforms.h>

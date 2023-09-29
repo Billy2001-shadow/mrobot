@@ -69,25 +69,6 @@ bool Mapping::InitParam(const YAML::Node &config_node) {
 
 void Mapping::OccupanyMapping(KeyFrame &current_keyframe) {
 
-  LOG(INFO) << "Update map";
-  //   Eigen::Matrix4f robot_pose = current_keyframe.pose;
-  //   CloudData::CLOUD_PTR cloud_ptr(new CloudData::CLOUD());
-
-  //   std::string file_path = "";
-  //   std::string key_frames_path_ =
-  // "/home/cw/test/mrobot_frame_ws/src/mrobot_frame/slam_data/key_frames";
-  //   file_path = key_frames_path_ + "/key_frame_" +
-  //               std::to_string(current_keyframe.index) + ".pcd";
-
-  //   pcl::io::loadPCDFile(file_path, *cloud_ptr); // cloud为点云指针
-
-  //   //先获取机器人位姿
-  //   Eigen::Matrix3f rotation_matrix =
-  //       robot_pose.block<3, 3>(0, 0); //从(0,0)开始取三行三列
-  //   Eigen::Vector3f eulerAngle = rotation_matrix.eulerAngles(
-  //       2, 1, 0); //
-  //   ZYX旋转顺序(只有一个θ，不用考虑旋转矩阵中旋转顺序的问题)
-
   //机器人位姿角归一化
   if (current_keyframe.corrected_pose.GetHeading() > 3.1415926) {
     current_keyframe.corrected_pose.SetHeading(
@@ -103,13 +84,9 @@ void Mapping::OccupanyMapping(KeyFrame &current_keyframe) {
                             current_keyframe.corrected_pose.GetY(),
                             current_keyframe.corrected_pose.GetHeading());
 
-  // LOG(INFO) << "robotPose" << robotPose(0) << "  " << robotPose(1) << "  "
-  //           << robotPose(2) << "  " << current_keyframe.index;
   //激光雷达的栅格地图坐标
   GridIndex robotIndex = ConvertWorld2GridIndex(robotPose(0), robotPose(1));
 
-  // LOG(INFO) << "robotIndex.x = " << robotIndex.x
-  //           << " robotIndex.y = " << robotIndex.y;
   //每一个激光束
   for (int id = 0; id < current_keyframe.ranges_data.readings.size(); id++) {
 

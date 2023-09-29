@@ -7,6 +7,7 @@ namespace mrobot_frame {
 class KeyFrame {
 public:
 public:
+  unsigned int index = 0;
   karto::Pose2 corrected_pose;
   RangesData ranges_data;
 };

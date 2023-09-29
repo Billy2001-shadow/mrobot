@@ -179,6 +179,7 @@ bag的发布频率过慢？ TF的频率跟不上scan的频率
 */
 bool FrontEnd::Update(karto::LaserRangeFinder *laser,
                       const RangesData &ranges_data, karto::Pose2 &karto_pose) {
+  ResetParam(); //重置关键帧
 
   karto::LocalizedRangeScan *range_scan =
       new karto::LocalizedRangeScan(laser->GetName(), ranges_data.readings);
@@ -189,43 +190,24 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
   // Add the localized range scan to the mapper
   bool processed;
   if ((processed = mapper_->Process(range_scan))) {
+    has_new_key_frame_ = true; //关键帧
     // std::cout << "Pose: " << range_scan->GetOdometricPose() << " Corrected
     // Pose: " << range_scan->GetCorrectedPose() << std::endl;
-    //矫正后的机器人位姿，这个位姿经过后端优化了吗？
     karto::Pose2 corrected_pose = range_scan->GetCorrectedPose();
-    // corrected_pose.GetX(),corrected_pose.GetY(),corrected_pose.GetHeading();
 
     pose_vector_.push_back(corrected_pose.GetX());
     pose_vector_.push_back(corrected_pose.GetY());
-    // std::cout << "size = " << ranges_data.angles.size() << std::endl;
-    // for (int i = 0; i < ranges_data.angles.size(); i++) {
-    //   std::cout << "," << ranges_data.angles[i] << std::endl;
-    // }
-    // LOG(INFO) << "x = " << corrected_pose.GetX()
-    //           << "y = " << corrected_pose.GetY();
-    KeyFrame new_key_frame;
-    new_key_frame.corrected_pose = corrected_pose;
-    new_key_frame.ranges_data = ranges_data;
-    //直接处理新的关键帧
-    UpdateWithNewFrame(new_key_frame);
+
+    if (has_new_key_frame_) {
+      KeyFrame new_key_frame;
+      new_key_frame.index = (unsigned int)key_frames_deque_.size();
+      new_key_frame.corrected_pose = corrected_pose;
+      new_key_frame.ranges_data = ranges_data;
+      // key_frames_deque_.push_back(new_key_frame); 目前不需要所有的关键帧
+      current_key_frame_ = new_key_frame;
+    }
   }
-  std::cout << "processed = " << processed << std::endl;
   return processed;
-}
-
-/*
-根据新的关键帧更新局部地图，并设置SetInputTarget(local_map_ptr_);
-从这里返回关键帧，设置为外部可调用的函数
-*/
-bool FrontEnd::UpdateWithNewFrame(KeyFrame &new_key_frame) {
-  //更新rosmap试试看
-  mapping_ptr_->OccupanyMapping(new_key_frame);
-  return true;
-}
-bool FrontEnd::GetRosMap(nav_msgs::OccupancyGrid &ros_map) {
-  ros_map = mapping_ptr_->GetCurrentMap();
-
-  return true;
 }
 
 void FrontEnd::publishPoseVisualization() {
@@ -302,6 +284,14 @@ void FrontEnd::publishPoseVisualization() {
   marker_count_ = marray.markers.size();
 
   marker_publisher_.publish(marray);
+}
+
+void FrontEnd::ResetParam() { has_new_key_frame_ = false; }
+
+bool FrontEnd::HasNewKeyFrame() { return has_new_key_frame_; }
+
+void FrontEnd::GetLatestKeyFrame(KeyFrame &key_frame) {
+  key_frame = current_key_frame_;
 }
 
 } // namespace mrobot_frame
