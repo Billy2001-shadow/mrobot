@@ -68,17 +68,17 @@ roslaunch mrobot_frame mapping.launch
 
 ### 4.1 intel.bag
 
-
+![image-20231010215813445](./README.assets/image-20231010215813445.png)
 
 ### 4.2 basic_localization_stage_indexed.bag
 
+![image-20231010215838521](./README.assets/image-20231010215838521.png)
 
 
 
 
 
-
-### 待优化部分
+## 5.待优化部分
 
 - 核心算法的文件中 太多和Open Karto关联的代码
 - 匹配参数文件应该放在哪个文件进行初始化呢
@@ -92,7 +92,7 @@ roslaunch mrobot_frame mapping.launch
 
 目前的程序框架，需要进一步解耦
 
-![image-20231010212645607](/home/cw/test/mrobot_ws/src/mrobot/README.assets/image-20231010212645607.png)
+![image-20231010212645607](./README.assets/image-20231010212645607.png)
 
 
 
