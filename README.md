@@ -1,527 +1,86 @@
 # mrobot
-2D激光里程计框架
 
-该激光SLAM框架仅支持2D激光雷达数据
+本程序为一套可解耦的SLAM框架，该激光SLAM框架主要分为数据预处理模块、前端里程计模块、后端优化模块、回环检测模块以及建图模块。
 
+## 0.前言
 
+出于对激光SLAM可扩展性的考虑，对激光SLAM框架进行重构。程序整体的设计目的在于尽可能保留充足的可扩展性，各模块充分解耦、即插即用，做到程序二次开发简便、可扩展性高。
 
-数据预处理模块的需求：
+## 1.简介
 
-- 订阅原始激光雷达的消息 sensor_msgs::
-- 发布激光雷达点云消息(预处理之后的)
+本套激光SLAM程序采用基于相关方法的匹配方法，在后端和回环部分使用图优化进行位姿的优化，在建图部分可选择计数建图、覆盖栅格建图算法等。
 
-不能通过ros的标准格式来进行前端和建图模块的通信了，那前端得到的优化后的位姿和range_readings该如何喂给建图模块呢？
+功能：完成定位与建图功能
 
-把readings写到txt文件中？
+部署前需要自行准备并更改的有：
 
+- 含有激光雷达扫描数据(scan)和里程计信息的bag包
+- 各坐标系名称，如激光雷达坐标系、里程计坐标系等。
+- 激光雷达数据的话题名称
+- 建图算法相关的参数配置
 
+## 2.环境配置
 
-```
-visualization_msgs::MarkerArray marray; 的用法
-```
+- Ubuntu20.4 LTS
 
-![image-20230917171139204](./README.assets/image-20230917171139204.png)
+- GCC 9.3.0
 
+- ros-noetic
 
+- Eigen3
 
+  
 
+## 3.工作空间创建与运行
 
-### 目前框架的缺陷
-
-#### 前端
-
-- 
-
-#### 后端
-
-- 后端还未从Karto slam中解耦出来
-
-#### 建图
-
-- 建图部分没有根据点云的范围自适应调整地图大小，现在是初始化一个很大的空白地图
-- 建图部分加一个保存栅格地图的操作(pgm格式)
-
-
-
-未发布map到odom下的坐标转换关系，目前只是前端+建图
-
-没有加入回环
-
-障碍物边界不清晰，有散射的可通行区域
-
-
-
-
-
-不能适应不同的数据集
-
-- basic_localization_stage_indexed.bag报错
-  - LaserRangeScan contains 1081 range readings, expected 1081
-  - 这个数据集一共有1081个点
-
-
-
-
+### 3.1创建catkin工作空间
 
 ```
-Mapper.cpp中出现的
-kt_bool LaserRangeFinder::Validate(SensorData *pSensorData) {
-  LaserRangeScan *pLaserRangeScan = dynamic_cast<LaserRangeScan *>(pSensorData);
+mkdir -p ~/mrobot_ws/src
+cd ~/mrobot_ws/src
+```
 
-  // verify number of range readings in LaserRangeScan matches the number of
-  // expected range readings
-  if (pLaserRangeScan->GetNumberOfRangeReadings() !=
-      GetNumberOfRangeReadings() - 1) {
-    std::cout << "LaserRangeScan contains "
-              << pLaserRangeScan->GetNumberOfRangeReadings()
-              << " range readings, expected " << GetNumberOfRangeReadings()
-              << std::endl;
-    return false;
-  }
+### 3.2下载功能包源码
 
-  return true;
-}
+```
+git clone https://github.com/ros-perception/open_karto.git
+git clone https://github.com/ros-perception/sparse_bundle_adjustment.git
+git clone https://github.com/Billy2001-shadow/mrobot_frame_ws.git
+```
+
+### 3.3编译catkin工作空间
+
+```
+cd ~/mrobot_ws/
+catkin_make -j6
+```
+
+### 3.4运行SLAM建图程序
+
+```
+source ./devel/setup.bash
+roslaunch mrobot_frame mapping.launch 
 ```
 
 
 
+## 4.实验Demo
 
+### 4.1 intel.bag
 
 
 
-![image-20230926103430279](./README.assets/image-20230926103430279.png)
+### 4.2 basic_localization_stage_indexed.bag
 
 
 
 
 
-大于60的比例认为是障碍物
 
 
+### 
 
-小于
-
-
-
-40的障碍物概率是 路过两次 击中三次 
-
-路过两次 
-
-pMapHits[i] + pMapMisses[i] == 0       
-
-Gridmap.data[i] = 0表示科通行区域
-
-- 
-
-设置雷达的最大探测距离，这个太长了。大于多少的就丢弃掉
-
-minimum_travel_distance
-
-
-
-
-
-一定要抓住基于PCL库的点云匹配适合3D激光雷达，但是并不适用于2d的激光雷达匹配。融合难度比较大，目前的开源框架没有这么干的。
-
-总结一下目前2d激光slam在前端计算位姿时用的方法。
-
-介绍一下之前做这个框架的人，为什么用PCL库没啥问题 在点云匹配这一块。
-
-
-
-
-
-
-
-
-
-## intel.bag
-
-![image-20230926202033639](./README.assets/image-20230926202033639.png)
-
-​																																（GT）
-
-
-
-![image-20230926155212150](./README.assets/image-20230926155212150.png)
-
-​																			        Mrobot
-
-![image-20230926160234800](./README.assets/image-20230926160234800.png)
-
-![image-20230926165915899](./README.assets/image-20230926165915899.png)
-
-​																														        	Karto slam
-
-![image-20230926175031104](./README.assets/image-20230926175031104.png)
-
-​																														GMapping
-
-![image-20230926175552441](./README.assets/image-20230926175552441.png)
-
-​																																GMapping
-
-![image-20230926180332412](./README.assets/image-20230926180332412.png)
-
-​																															Karto slam
-
-
-
-![image-20230926202211939](./README.assets/image-20230926202211939.png)
-
-​																														(Mrobot)
-
-
-
-![image-20230926202153837](./README.assets/image-20230926202153837.png)
-
-- **geometric** and **photometric** 3D mapping pipeline(better geometric and photometric accuracy )
-- real-time hierarchical volumetric neural radiance fields
-- 
-
-
-
-
-
-- geometric accuracy（Depth L1)
-- photometric accuracy (PSNR - peak signal-to-noise ratio)  图像质量评估的指标
-
-
-
-SLAM为fit a neural radiance field of the scene  提供了
-
-- by providing **accurate pose estimates** and **depth-maps with associated uncertainty.** 
-- The estimated poses and depth-maps from dense SLAM, weighted by their marginal covariance estimates, provide the ideal source of information to optimize a hierarchical hash-based volumetric neural radiance field. W
-
-
-
-
-
-SLAM提供了
-
-- 3D poses
-- dense depth-maps,and probabilistic uncertainties
-
-
-
-
-
-Our Frontend's Pointcloud
-
-**Mesh** Resulting front TSDF Fusion
-
-
-
-Ablation Experiments 消融实验
-
-Replica Dataset 副样本数据集(多跑几个场景的实验需要用到)
-
-
-
-
-
-## 2023.09.27
-
-明确哪里需要日志文件，哪里不用日志文件，
-
-
-
-- 先看一下如何将sparse_bundle_adjustment这个模块给换掉，也就是后端给换掉，换成g2o，或者替换成可选项的那种，模仿想哥的
-  - 而且需要看能否将后端抽离出来
-
-
-
-
-
-
-
-- 还需要预处理的节点吗？感觉得看kato slam中是如何处理原始点云信息的
-
-- 统一使用智能指针
-- 后端和回环感觉还是得用上
-- 自适应地图大小肯定要实现的
-- 终极目标：去除openc_karto的依赖，并且能够加快编译，尽量不依赖除了Eigen以外的库
-
-
-
-
-
-​							
-
-## 后端部分
-
-- 依赖了<open_karto/Karto.h>、<open_karto/Mapper.h>
-- <sparse_bundle_adjustment/spa2d.h>
-- 需不需要看懂karto slam后端接口部分，然后移植到我们的框架中来？
-- 后端的接口继承于karto::ScanSolver
-  - 主要重写了以下几个函数：~CeresSolver(); Clear();   Compute(); const karto::ScanSolver::IdPoseVector &GetCorrections() const; AddNode AddConstraint
-
-
-
-- 日志文件能不能统一，而不是每一个节点一个文件？
-
-
-
-
-
-```c++
-class ScanSolver
-{
-public:
-    /**
-     * Vector of id-pose pairs
-     */
-    typedef std::vector<std::pair<kt_int32s, Pose2>> IdPoseVector;
-
-    /**
-     * Default constructor
-     */
-    ScanSolver()
-    {
-    }
-
-    /**
-     * Destructor
-     */
-    virtual ~ScanSolver()
-    {
-    }
-
-public:
-    /**
-     * Solve!
-     */
-    virtual void Compute() = 0;
-
-    /**
-     * Get corrected poses after optimization
-     * @return optimized poses
-     */
-    virtual const IdPoseVector &GetCorrections() const = 0;
-
-    /**
-     * Adds a node to the solver
-     */
-    virtual void AddNode(Vertex<LocalizedRangeScan> * /*pVertex*/)
-    {
-    }
-
-    /**
-     * Removes a node from the solver
-     */
-    virtual void RemoveNode(kt_int32s /*id*/)
-    {
-    }
-
-    /**
-     * Adds a constraint to the solver
-     */
-    virtual void AddConstraint(Edge<LocalizedRangeScan> * /*pEdge*/)
-    {
-    }
-
-    /**
-     * Removes a constraint from the solver
-     */
-    virtual void RemoveConstraint(kt_int32s /*sourceId*/, kt_int32s /*targetId*/)
-    {
-    }
-
-    /**
-     * Resets the solver
-     */
-    virtual void Clear(){};
-}; // ScanSolver
-
-
-MapGrapher类
-    
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-```c++
-SpaSolver *solver_;
-solver_ = new SpaSolver();
-mapper_->SetScanSolver(solver_);         #这个地方和open_karto有关吧
-    
-solver_->getGraph(graph);
-
-
-
-
-karto::ScanSolver                       #这个地方和open_karto有关吧  karto命名空间里面声明了？  karto::ScanSolver基类？
-```
-
-
-
-
-
-```c++
-MapperGraph* m_pGraph;         //基类
-    
-
-if (m_pUseScanMatching->GetValue()) {
-      // add to graph
-      m_pGraph->AddVertex(pScan);
-      m_pGraph->AddEdges(pScan, covariance);
-
-      m_pMapperSensorManager->AddRunningScan(pScan);
-
-      if (m_pDoLoopClosing->GetValue()) {
-        std::vector<Name> deviceNames =
-            m_pMapperSensorManager->GetSensorNames();
-        const_forEach(std::vector<Name>, &deviceNames) {
-          m_pGraph->TryCloseLoop(pScan, *iter);
-        }
-      }
-    }
-```
-
-
-
-具体在哪里solver了呢
-
-```C++
-void MapperGraph::CorrectPoses() {
-  // optimize scans!
-  ScanSolver *pSolver = m_pMapper->m_pScanOptimizer;
-  if (pSolver != NULL) {
-    pSolver->Compute();
-
-    const_forEach(ScanSolver::IdPoseVector, &pSolver->GetCorrections()) {
-      m_pMapper->m_pMapperSensorManager->GetScan(iter->first)
-          ->SetSensorPose(iter->second);
-    }
-
-    pSolver->Clear();
-  }
-}
-
-//调用了上面的CorrectPoses() 
-kt_bool MapperGraph::TryCloseLoop(LocalizedRangeScan *pScan,
-                                  const Name &rSensorName)
-```
-
-karto slam只有检测到回环才会进行优化吗？
-
-- 由于Karto中并没有实现后端的具体求解方法，而是将后端的求解方法定义成立了接口类，以方便后续进行具体的实现．
-
-雷达的数据在远距离的跳动，使得地图生成了更多的**毛刺**
-
-数代表这对雷达数据使用的距离，如果是12，就只使用12米范围内的雷达数据，如果是20，就使用20米范围内的雷达数据．
-
-同时，Karto的局部地图也和这个参数有关，局部地图的大小是这个参数的2倍多一点，多出来的部分是给核函数用的．
-
-由于这个雷达是2000块钱的雷达，最远距离为25m，距离远的数据点的精度很差，而Karto的建图部分是使用所有的雷达点生成地图．
-
-所以当这个参数改成20米后，由于雷达的数据在远距离的跳动，使得地图生成了**更多的毛刺**，也使得走廊两侧的**墙壁黑色的外边还有白色地图的现象．**
-
-
-- 运行结束后将产生如下的地图，每次运行的效果不同，下图是运行效果最差的一次的截图． 每次运行的效果不同是什么鬼？
-
-
-
-## 2023.09.29
-
-#### 前端部分
-
-- 需要考虑一下关键帧的生成问题
-- 评估一下后端是否可以拆分出来
-
-
-
-#### 建图部分
-
-建图部分代码需要重构一下
-
-
-
-#### 数据结构部分
-
-- 需要统一数据结构，尤其是关键帧和自定义消息类型的联动
-  - 关键帧中的机器人位姿一定要用karto slam里面的位姿表示吗(Karto::Pose2？)
-  - RangesData是否有更优雅的表示？
-- 重新理清楚scan的回调函数，送到自定义数据结构ranges的逻辑关系
-
-
-
-```
-ranges_data中的angels在建图的时候用到了
-```
-
-
-
-## 2023.10.10
-
-
-
-- 点云订阅文件中还依赖open_karto
-
-
-
-Sensor::msgs 
-
-
-
-可以优化一下TFListener类
-
-
-
-转换成自己算法里的数据结构
-
-
-
-```
-class RangesData {
-
-public:
-  ros::Time time;
-  std::vector<double> angles;
-  std::vector<double> readings;
-};
-
-//如何去除karto的依赖？
-class KeyFrame {
-public:
-  unsigned int index = 0;
-  karto::Pose2 corrected_pose;
-  RangesData ranges_data;
-};
-
-
-
-struct Frame {
-    karto::Pose2 karto_pose;
-    RangesData ranges_data;
-  };
-```
-
-
-
-```
-//三个参数： 设备号laser   当前帧点云：current_ranges_data_  当前轮式里程计的位姿：karto_pose
-front_end_ptr_->Update(laser, current_ranges_data_, karto_pose);    
-```
-
-不借助PCL库的话，可以把cloud_data给删掉
-
-
-
-### 前端
-
-待优化部分
+### 待优化部分
 
 - 核心算法的文件中 太多和Open Karto关联的代码
 - 匹配参数文件应该放在哪个文件进行初始化呢
@@ -530,15 +89,9 @@ front_end_ptr_->Update(laser, current_ranges_data_, karto_pose);
 
 
 
-karto_pose是否能够替换掉？
-
-karto_pose
-
-
-
 暂时不考虑设备号、dataset_类等
 
-利用好轮式里程计的值+激光点云数据  手搓一个？  想明白前端需要提供什么数据给后端、后端需要什么数据提供给建图模块
+利用好轮式里程计的值+激光点云数据 想明白前端需要提供什么数据给后端、后端需要什么数据提供给建图模块
 
 
 
@@ -546,7 +99,7 @@ karto_pose
 
 ## Reference
 
-
+[Karto_slam](https://github.com/ros-perception/open_karto.git)
 
 [从零开始搭二维激光SLAM](https://github.com/xiangli0608/Creating-2D-laser-slam-from-scratch)
 
