@@ -1,4 +1,0 @@
-Log file created at: 2023/09/21 22:08:24
-Running on machine: cw-VLT-WX0
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-I0921 22:08:24.697412  8320 mapping.cpp:72] Update map

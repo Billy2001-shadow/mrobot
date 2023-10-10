@@ -1,4 +1,0 @@
-Log file created at: 2023/09/20 21:30:35
-Running on machine: cw-VLT-WX0
-Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
-I0920 21:30:35.991892 54981 front_end.cpp:198] x = -0.000602y = 0.012727

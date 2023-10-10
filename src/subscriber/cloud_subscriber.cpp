@@ -6,30 +6,17 @@ namespace mrobot_frame {
 
 CloudSubscriber::CloudSubscriber(ros::NodeHandle &nh, std::string topic_name,
                                  size_t buff_size)
-    : nh_(nh), scan_filter_sub_(NULL), scan_filter_(NULL) {
-  // scan_filter_sub_ = new message_filters::Subscriber<sensor_msgs::LaserScan>(
-  //     nh, topic_name, 100); //用message_filters库来订阅"/scan"
-  // // tf::MessageFilter，订阅激光数据同时和odom_frame之间转换时间同步
-  // scan_filter_ = new tf::MessageFilter<sensor_msgs::LaserScan>(
-  //     *scan_filter_sub_, tf_, odom_frame_,
-  //     5);
-  //     //创建一个tf::MessageFilter对象，用于将激光数据转换到odom_frame_坐标系下。
-  // // scan_filter_注册回调函数laserCallback
-  // scan_filter_->registerCallback(
-  //     boost::bind(&CloudSubscriber::msg_callback, this, _1)); //
-  dataset_ = new karto::Dataset();
+    : nh_(nh) {
   if (!nh_.getParam("laser_frame", laser_frame_))
     laser_frame_ = "base_laser_link";
 
   subscriber_ = nh_.subscribe(topic_name, buff_size,
                               &CloudSubscriber::msg_callback, this);
+
+  dataset_ = new karto::Dataset();
 }
 
 CloudSubscriber::~CloudSubscriber() {
-  if (scan_filter_)
-    delete scan_filter_;
-  if (scan_filter_sub_)
-    delete scan_filter_sub_;
   if (dataset_)
     delete dataset_;
 }
@@ -59,25 +46,20 @@ void CloudSubscriber::ParseData(std::deque<RangesData> &ranges_data_buff) {
   buff_mutex_.lock();
 
   if (new_ranges_data_.size() > 0) {
-
     ranges_data_buff.insert(ranges_data_buff.end(), new_ranges_data_.begin(),
                             new_ranges_data_.end());
     new_ranges_data_.clear();
   }
-
   buff_mutex_.unlock();
 }
 
 void CloudSubscriber::ParseData(std::deque<CloudData> &cloud_data_buff) {
   buff_mutex_.lock();
-
   if (new_cloud_data_.size() > 0) {
-
     cloud_data_buff.insert(cloud_data_buff.end(), new_cloud_data_.begin(),
                            new_cloud_data_.end());
     new_cloud_data_.clear();
   }
-
   buff_mutex_.unlock();
 }
 

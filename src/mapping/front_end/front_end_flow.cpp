@@ -47,6 +47,7 @@ bool FrontEndFlow::ValidData() {
 }
 
 bool FrontEndFlow::UpdateLaserOdometry() {
+  //先获取当前激光帧对应的里程计信息
   if (!tf_pose_ptr_->getOdomPose(karto_pose, current_ranges_data_.time))
     return false;
   karto::LaserRangeFinder *laser = cloud_sub_ptr_->getLaser();

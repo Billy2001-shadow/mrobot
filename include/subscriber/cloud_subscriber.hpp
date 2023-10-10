@@ -40,9 +40,7 @@ private:
   std::deque<RangesData> new_ranges_data_;
   std::mutex buff_mutex_;
 
-  tf::TransformListener tf_; //以下三行组合使用
-  message_filters::Subscriber<sensor_msgs::LaserScan> *scan_filter_sub_;
-  tf::MessageFilter<sensor_msgs::LaserScan> *scan_filter_;
+  tf::TransformListener tf_;
 
   std::map<std::string, karto::LaserRangeFinder *> lasers_;
   std::map<std::string, bool> lasers_inverted_;
