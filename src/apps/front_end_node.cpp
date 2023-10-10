@@ -9,13 +9,11 @@ int main(int argc, char *argv[]) {
   ros::init(argc, argv, "mrobot_frame_front_end_node");
   ros::NodeHandle nh;
 
-  std::string cloud_topic, laser_odom_topic;
+  std::string cloud_topic; //订阅的点云话题
   nh.param<std::string>("cloud_topic", cloud_topic, "scan");
-  nh.param<std::string>("laser_odom_topic", laser_odom_topic,
-                        "laser_odom_pose");
 
   std::shared_ptr<FrontEndFlow> front_end_flow_ptr =
-      std::make_shared<FrontEndFlow>(nh, cloud_topic, laser_odom_topic);
+      std::make_shared<FrontEndFlow>(nh, cloud_topic);
 
   ros::Rate rate(10); // 10 hz
   while (ros::ok()) {

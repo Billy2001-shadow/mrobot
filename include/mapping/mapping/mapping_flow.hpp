@@ -10,7 +10,6 @@
 #include "mrobot_frame/keyframemsg.h"
 #include "sensor_data/key_frame.hpp"
 #include "subscriber/cloud_subscriber.hpp"
-#include "subscriber/cloud_subscriber2.hpp"
 #include "subscriber/key_frame_subscriber.hpp"
 // publisher
 #include "mapping/mapping/mapping.hpp"

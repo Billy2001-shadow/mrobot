@@ -6,10 +6,13 @@
 namespace mrobot_frame {
 FrontEnd::FrontEnd() {
   mapper_ = new karto::Mapper();
-  mapping_ptr_ = std::make_shared<Mapping>();
   InitWithConfig();
 }
 
+FrontEnd::~FrontEnd() {
+  if (mapper_)
+    delete mapper_;
+}
 //初始化参数，匹配方法，滤波
 bool FrontEnd::InitWithConfig() {
   ros::NodeHandle private_nh_("~");
@@ -185,8 +188,7 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
       new karto::LocalizedRangeScan(laser->GetName(), ranges_data.readings);
   range_scan->SetOdometricPose(karto_pose);
   range_scan->SetCorrectedPose(karto_pose);
-  // std::cout << "LaserRangeScan.size() = "
-  //           << range_scan->GetNumberOfRangeReadings();
+
   // Add the localized range scan to the mapper
   bool processed;
   if ((processed = mapper_->Process(range_scan))) {

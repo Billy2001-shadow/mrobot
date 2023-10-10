@@ -4,8 +4,7 @@
 
 namespace mrobot_frame {
 
-FrontEndFlow::FrontEndFlow(ros::NodeHandle &nh, std::string cloud_topic,
-                           std::string laser_odom_topic) {
+FrontEndFlow::FrontEndFlow(ros::NodeHandle &nh, std::string cloud_topic) {
   std::string laser_frame, odom_frame;
   nh.param<std::string>("laser_frame", laser_frame, "base_laser");
   nh.param<std::string>("odom_frame", odom_frame, "odom");
@@ -34,15 +33,15 @@ bool FrontEndFlow::Run() {
 }
 
 bool FrontEndFlow::ReadData() {
-  cloud_sub_ptr_->ParseData(cloud_data_buff_);
+  cloud_sub_ptr_->ParseData(ranges_data_buff_);
   return true;
 }
 
-bool FrontEndFlow::HasData() { return cloud_data_buff_.size() > 0; }
+bool FrontEndFlow::HasData() { return ranges_data_buff_.size() > 0; }
 
 bool FrontEndFlow::ValidData() {
-  current_ranges_data_ = cloud_data_buff_.front();
-  cloud_data_buff_.pop_front();
+  current_ranges_data_ = ranges_data_buff_.front();
+  ranges_data_buff_.pop_front();
   return true;
 }
 

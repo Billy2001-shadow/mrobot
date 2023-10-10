@@ -1,5 +1,4 @@
 #include "subscriber/cloud_subscriber.hpp"
-#include "sensor_data/ranges_data.hpp"
 #include <vector>
 
 namespace mrobot_frame {
@@ -7,9 +6,9 @@ namespace mrobot_frame {
 CloudSubscriber::CloudSubscriber(ros::NodeHandle &nh, std::string topic_name,
                                  size_t buff_size)
     : nh_(nh) {
-  if (!nh_.getParam("laser_frame", laser_frame_))
-    laser_frame_ = "base_laser_link";
 
+  nh.param<std::string>("laser_frame", laser_frame_, "base_laser_link");
+  nh.param<std::string>("odom_frame", odom_frame_, "odom");
   subscriber_ = nh_.subscribe(topic_name, buff_size,
                               &CloudSubscriber::msg_callback, this);
 
@@ -49,16 +48,6 @@ void CloudSubscriber::ParseData(std::deque<RangesData> &ranges_data_buff) {
     ranges_data_buff.insert(ranges_data_buff.end(), new_ranges_data_.begin(),
                             new_ranges_data_.end());
     new_ranges_data_.clear();
-  }
-  buff_mutex_.unlock();
-}
-
-void CloudSubscriber::ParseData(std::deque<CloudData> &cloud_data_buff) {
-  buff_mutex_.lock();
-  if (new_cloud_data_.size() > 0) {
-    cloud_data_buff.insert(cloud_data_buff.end(), new_cloud_data_.begin(),
-                           new_cloud_data_.end());
-    new_cloud_data_.clear();
   }
   buff_mutex_.unlock();
 }

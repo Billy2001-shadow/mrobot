@@ -463,6 +463,85 @@ ranges_data中的angels在建图的时候用到了
 
 
 
+## 2023.10.10
+
+
+
+- 点云订阅文件中还依赖open_karto
+
+
+
+Sensor::msgs 
+
+
+
+可以优化一下TFListener类
+
+
+
+转换成自己算法里的数据结构
+
+
+
+```
+class RangesData {
+
+public:
+  ros::Time time;
+  std::vector<double> angles;
+  std::vector<double> readings;
+};
+
+//如何去除karto的依赖？
+class KeyFrame {
+public:
+  unsigned int index = 0;
+  karto::Pose2 corrected_pose;
+  RangesData ranges_data;
+};
+
+
+
+struct Frame {
+    karto::Pose2 karto_pose;
+    RangesData ranges_data;
+  };
+```
+
+
+
+```
+//三个参数： 设备号laser   当前帧点云：current_ranges_data_  当前轮式里程计的位姿：karto_pose
+front_end_ptr_->Update(laser, current_ranges_data_, karto_pose);    
+```
+
+不借助PCL库的话，可以把cloud_data给删掉
+
+
+
+### 前端
+
+待优化部分
+
+- 核心算法的文件中 太多和Open Karto关联的代码
+- 匹配参数文件应该放在哪个文件进行初始化呢
+- 选择优化器的代码是否可以放在后端和回环部分呢
+- 显示前端位姿部分的代码目前有点问题(首尾相接问题)
+
+
+
+karto_pose是否能够替换掉？
+
+karto_pose
+
+
+
+暂时不考虑设备号、dataset_类等
+
+利用好轮式里程计的值+激光点云数据  手搓一个？  想明白前端需要提供什么数据给后端、后端需要什么数据提供给建图模块
+
+
+
 
 
 ## Reference

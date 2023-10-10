@@ -23,6 +23,7 @@ public:
 
 public:
   FrontEnd();
+  ~FrontEnd();
   //得到一帧点云，就返回一个位姿
   bool Update(karto::LaserRangeFinder *laser, const RangesData &ranges_data,
               karto::Pose2 &karto_pose);
