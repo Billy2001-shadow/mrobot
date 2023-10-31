@@ -1,5 +1,4 @@
 #include "mapping/mapping/mapping_flow.hpp"
-#include <memory>
 
 namespace mrobot_frame {
 MappingFlow::MappingFlow(ros::NodeHandle &nh) {

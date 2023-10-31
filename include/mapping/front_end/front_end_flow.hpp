@@ -1,13 +1,16 @@
 #ifndef MROBOT_FRAME_MAPPING_FRONT_END_FRONT_END_FLOW_HPP_
 #define MROBOT_FRAME_MAPPING_FRONT_END_FRONT_END_FLOW_HPP_
 
-#include <ros/ros.h>
+// STD LIB
 
+// ROS LIB
+
+// THIRD LIB
+
+// My LIB
 #include "mapping/front_end/front_end.hpp"
 #include "publisher/key_frame_publisher.hpp"
-#include "sensor_data/ranges_data.hpp"
 #include "subscriber/cloud_subscriber.hpp"
-#include "subscriber/tf_listener.hpp"
 
 namespace mrobot_frame {
 class FrontEndFlow {

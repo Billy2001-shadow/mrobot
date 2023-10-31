@@ -1,11 +1,12 @@
 #include "mapping/front_end/front_end.hpp"
 #include "global_defination/global_defination.h"
-#include "glog/logging.h"
-#include "mapping/mapping/mapping.hpp"
-
 namespace mrobot_frame {
+
 FrontEnd::FrontEnd() {
-  mapper_ = new karto::Mapper();
+  // marker_publisher_ = private_nh_.advertise<visualization_msgs::MarkerArray>(
+  //     "visualization_marker_array", 1);
+  mapper_ = new karto::Mapper(); //能不能用共享指针 最好对Karto进行解耦
+                                 //去除对Karto的依赖
   InitWithConfig();
 }
 
@@ -13,164 +14,85 @@ FrontEnd::~FrontEnd() {
   if (mapper_)
     delete mapper_;
 }
-//初始化参数，匹配方法，滤波
+//初始化参数，匹配方法
 bool FrontEnd::InitWithConfig() {
-  ros::NodeHandle private_nh_("~");
-  bool use_scan_matching;
-  if (private_nh_.getParam("use_scan_matching", use_scan_matching))
-    mapper_->setParamUseScanMatching(use_scan_matching);
 
-  bool use_scan_barycenter;
-  if (private_nh_.getParam("use_scan_barycenter", use_scan_barycenter))
-    mapper_->setParamUseScanBarycenter(use_scan_barycenter);
+  std::string config_file_path = WORK_SPACE_PATH + "/config/front_end.yaml";
+  YAML::Node config_node = YAML::LoadFile(config_file_path);
 
-  double minimum_time_interval;
-  if (private_nh_.getParam("minimum_time_interval", minimum_time_interval))
-    mapper_->setParamMinimumTimeInterval(minimum_time_interval);
+  std::cout << "-----------------前端匹配初始化-------------------"
+            << std::endl;
+  InitParam(config_node);
 
-  double minimum_travel_distance;
-  if (private_nh_.getParam("minimum_travel_distance", minimum_travel_distance))
-    mapper_->setParamMinimumTravelDistance(minimum_travel_distance);
-
-  double minimum_travel_heading;
-  if (private_nh_.getParam("minimum_travel_heading", minimum_travel_heading))
-    mapper_->setParamMinimumTravelHeading(minimum_travel_heading);
-
-  int scan_buffer_size;
-  if (private_nh_.getParam("scan_buffer_size", scan_buffer_size))
-    mapper_->setParamScanBufferSize(scan_buffer_size);
-
-  double scan_buffer_maximum_scan_distance;
-  if (private_nh_.getParam("scan_buffer_maximum_scan_distance",
-                           scan_buffer_maximum_scan_distance))
-    mapper_->setParamScanBufferMaximumScanDistance(
-        scan_buffer_maximum_scan_distance);
-
-  double link_match_minimum_response_fine;
-  if (private_nh_.getParam("link_match_minimum_response_fine",
-                           link_match_minimum_response_fine))
-    mapper_->setParamLinkMatchMinimumResponseFine(
-        link_match_minimum_response_fine);
-
-  double link_scan_maximum_distance;
-  if (private_nh_.getParam("link_scan_maximum_distance",
-                           link_scan_maximum_distance))
-    mapper_->setParamLinkScanMaximumDistance(link_scan_maximum_distance);
-
-  double loop_search_maximum_distance;
-  if (private_nh_.getParam("loop_search_maximum_distance",
-                           loop_search_maximum_distance))
-    mapper_->setParamLoopSearchMaximumDistance(loop_search_maximum_distance);
-
-  bool do_loop_closing;
-  if (private_nh_.getParam("do_loop_closing", do_loop_closing))
-    mapper_->setParamDoLoopClosing(do_loop_closing);
-
-  int loop_match_minimum_chain_size;
-  if (private_nh_.getParam("loop_match_minimum_chain_size",
-                           loop_match_minimum_chain_size))
-    mapper_->setParamLoopMatchMinimumChainSize(loop_match_minimum_chain_size);
-
-  double loop_match_maximum_variance_coarse;
-  if (private_nh_.getParam("loop_match_maximum_variance_coarse",
-                           loop_match_maximum_variance_coarse))
-    mapper_->setParamLoopMatchMaximumVarianceCoarse(
-        loop_match_maximum_variance_coarse);
-
-  double loop_match_minimum_response_coarse;
-  if (private_nh_.getParam("loop_match_minimum_response_coarse",
-                           loop_match_minimum_response_coarse))
-    mapper_->setParamLoopMatchMinimumResponseCoarse(
-        loop_match_minimum_response_coarse);
-
-  double loop_match_minimum_response_fine;
-  if (private_nh_.getParam("loop_match_minimum_response_fine",
-                           loop_match_minimum_response_fine))
-    mapper_->setParamLoopMatchMinimumResponseFine(
-        loop_match_minimum_response_fine);
-
-  // Setting Correlation Parameters from the Parameter Server
-
-  double correlation_search_space_dimension;
-  if (private_nh_.getParam("correlation_search_space_dimension",
-                           correlation_search_space_dimension))
-    mapper_->setParamCorrelationSearchSpaceDimension(
-        correlation_search_space_dimension);
-
-  double correlation_search_space_resolution;
-  if (private_nh_.getParam("correlation_search_space_resolution",
-                           correlation_search_space_resolution))
-    mapper_->setParamCorrelationSearchSpaceResolution(
-        correlation_search_space_resolution);
-
-  double correlation_search_space_smear_deviation;
-  if (private_nh_.getParam("correlation_search_space_smear_deviation",
-                           correlation_search_space_smear_deviation))
-    mapper_->setParamCorrelationSearchSpaceSmearDeviation(
-        correlation_search_space_smear_deviation);
-
-  // Setting Correlation Parameters, Loop Closure Parameters from the Parameter
-  // Server
-
-  double loop_search_space_dimension;
-  if (private_nh_.getParam("loop_search_space_dimension",
-                           loop_search_space_dimension))
-    mapper_->setParamLoopSearchSpaceDimension(loop_search_space_dimension);
-
-  double loop_search_space_resolution;
-  if (private_nh_.getParam("loop_search_space_resolution",
-                           loop_search_space_resolution))
-    mapper_->setParamLoopSearchSpaceResolution(loop_search_space_resolution);
-
-  double loop_search_space_smear_deviation;
-  if (private_nh_.getParam("loop_search_space_smear_deviation",
-                           loop_search_space_smear_deviation))
-    mapper_->setParamLoopSearchSpaceSmearDeviation(
-        loop_search_space_smear_deviation);
-
-  // Setting Scan Matcher Parameters from the Parameter Server
-
-  double distance_variance_penalty;
-  if (private_nh_.getParam("distance_variance_penalty",
-                           distance_variance_penalty))
-    mapper_->setParamDistanceVariancePenalty(distance_variance_penalty);
-
-  double angle_variance_penalty;
-  if (private_nh_.getParam("angle_variance_penalty", angle_variance_penalty))
-    mapper_->setParamAngleVariancePenalty(angle_variance_penalty);
-
-  double fine_search_angle_offset;
-  if (private_nh_.getParam("fine_search_angle_offset",
-                           fine_search_angle_offset))
-    mapper_->setParamFineSearchAngleOffset(fine_search_angle_offset);
-
-  double coarse_search_angle_offset;
-  if (private_nh_.getParam("coarse_search_angle_offset",
-                           coarse_search_angle_offset))
-    mapper_->setParamCoarseSearchAngleOffset(coarse_search_angle_offset);
-
-  double coarse_angle_resolution;
-  if (private_nh_.getParam("coarse_angle_resolution", coarse_angle_resolution))
-    mapper_->setParamCoarseAngleResolution(coarse_angle_resolution);
-
-  double minimum_angle_penalty;
-  if (private_nh_.getParam("minimum_angle_penalty", minimum_angle_penalty))
-    mapper_->setParamMinimumAnglePenalty(minimum_angle_penalty);
-
-  double minimum_distance_penalty;
-  if (private_nh_.getParam("minimum_distance_penalty",
-                           minimum_distance_penalty))
-    mapper_->setParamMinimumDistancePenalty(minimum_distance_penalty);
-
-  bool use_response_expansion;
-  if (private_nh_.getParam("use_response_expansion", use_response_expansion))
-    mapper_->setParamUseResponseExpansion(use_response_expansion);
-
-  marker_publisher_ = private_nh_.advertise<visualization_msgs::MarkerArray>(
-      "visualization_marker_array", 1);
   // Set solver to be used in loop closure
   solver_ = new SpaSolver();
   mapper_->SetScanSolver(solver_);
+  return true;
+}
+
+bool FrontEnd::InitParam(const YAML::Node &config_node) {
+  // General Parameters
+  mapper_->setParamUseScanMatching(config_node["use_scan_matching"].as<bool>());
+  mapper_->setParamUseScanBarycenter(
+      config_node["use_scan_barycenter"].as<bool>());
+  mapper_->setParamMinimumTimeInterval(
+      config_node["minimum_time_interval"].as<double>());
+  mapper_->setParamMinimumTravelDistance(
+      config_node["minimum_travel_distance"].as<double>());
+  mapper_->setParamMinimumTravelHeading(
+      config_node["minimum_travel_heading"].as<double>());
+  mapper_->setParamScanBufferSize(config_node["scan_buffer_size"].as<int>());
+  mapper_->setParamScanBufferMaximumScanDistance(
+      config_node["scan_buffer_maximum_scan_distance"].as<double>());
+  mapper_->setParamLinkMatchMinimumResponseFine(
+      config_node["link_match_minimum_response_fine"].as<double>());
+  mapper_->setParamLinkScanMaximumDistance(
+      config_node["link_scan_maximum_distance"].as<double>());
+  mapper_->setParamLoopSearchMaximumDistance(
+      config_node["loop_search_maximum_distance"].as<double>());
+  mapper_->setParamDoLoopClosing(config_node["do_loop_closing"].as<bool>());
+  mapper_->setParamLoopMatchMinimumChainSize(
+      config_node["loop_match_minimum_chain_size"].as<int>());
+  mapper_->setParamLoopMatchMaximumVarianceCoarse(
+      config_node["loop_match_maximum_variance_coarse"].as<double>());
+  mapper_->setParamLoopMatchMinimumResponseCoarse(
+      config_node["loop_match_minimum_response_coarse"].as<double>());
+  mapper_->setParamLoopMatchMinimumResponseFine(
+      config_node["loop_match_minimum_response_fine"].as<double>());
+  // Setting Correlation Parameters from the Parameter Server
+  mapper_->setParamCorrelationSearchSpaceDimension(
+      config_node["correlation_search_space_dimension"].as<double>());
+  mapper_->setParamCorrelationSearchSpaceResolution(
+      config_node["correlation_search_space_resolution"].as<double>());
+  mapper_->setParamCorrelationSearchSpaceSmearDeviation(
+      config_node["correlation_search_space_smear_deviation"].as<double>());
+  // Setting Correlation Parameters, Loop Closure Parameters from the Parameter
+  // Server
+  mapper_->setParamLoopSearchSpaceDimension(
+      config_node["loop_search_space_dimension"].as<double>());
+  mapper_->setParamLoopSearchSpaceResolution(
+      config_node["loop_search_space_resolution"].as<double>());
+  mapper_->setParamLoopSearchSpaceSmearDeviation(
+      config_node["loop_search_space_smear_deviation"].as<double>());
+
+  // Setting Scan Matcher Parameters from the Parameter Server
+  mapper_->setParamDistanceVariancePenalty(
+      config_node["distance_variance_penalty"].as<double>());
+  mapper_->setParamAngleVariancePenalty(
+      config_node["angle_variance_penalty"].as<double>());
+  mapper_->setParamFineSearchAngleOffset(
+      config_node["fine_search_angle_offset"].as<double>());
+  mapper_->setParamCoarseSearchAngleOffset(
+      config_node["coarse_search_angle_offset"].as<double>());
+  mapper_->setParamCoarseAngleResolution(
+      config_node["coarse_angle_resolution"].as<double>());
+  mapper_->setParamMinimumAnglePenalty(
+      config_node["minimum_angle_penalty"].as<double>());
+  mapper_->setParamMinimumDistancePenalty(
+      config_node["minimum_distance_penalty"].as<double>());
+  mapper_->setParamUseResponseExpansion(
+      config_node["use_response_expansion"].as<bool>());
+
   return true;
 }
 
@@ -182,7 +104,7 @@ bag的发布频率过慢？ TF的频率跟不上scan的频率
 */
 bool FrontEnd::Update(karto::LaserRangeFinder *laser,
                       const RangesData &ranges_data, karto::Pose2 &karto_pose) {
-  ResetParam(); //重置关键帧
+  // ResetParam(); //重置关键帧
 
   karto::LocalizedRangeScan *range_scan =
       new karto::LocalizedRangeScan(laser->GetName(), ranges_data.readings);
@@ -192,7 +114,7 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
   // Add the localized range scan to the mapper
   bool processed;
   if ((processed = mapper_->Process(range_scan))) {
-    has_new_key_frame_ = true; //关键帧
+    // has_new_key_frame_ = true; //关键帧
     // std::cout << "Pose: " << range_scan->GetOdometricPose() << " Corrected
     // Pose: " << range_scan->GetCorrectedPose() << std::endl;
     karto::Pose2 corrected_pose = range_scan->GetCorrectedPose();
@@ -200,14 +122,12 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
     pose_vector_.push_back(corrected_pose.GetX());
     pose_vector_.push_back(corrected_pose.GetY());
 
-    if (has_new_key_frame_) {
-      KeyFrame new_key_frame;
-      new_key_frame.index = (unsigned int)key_frames_deque_.size();
-      new_key_frame.corrected_pose = corrected_pose;
-      new_key_frame.ranges_data = ranges_data;
-      // key_frames_deque_.push_back(new_key_frame); 目前不需要所有的关键帧
-      current_key_frame_ = new_key_frame;
-    }
+    KeyFrame new_key_frame;
+    new_key_frame.index = (unsigned int)key_frames_deque_.size();
+    new_key_frame.corrected_pose = corrected_pose;
+    new_key_frame.ranges_data = ranges_data;
+    // key_frames_deque_.push_back(new_key_frame); 目前不需要所有的关键帧
+    current_key_frame_ = new_key_frame;
   }
   return processed;
 }

@@ -1,6 +1,4 @@
 #include "mapping/front_end/front_end_flow.hpp"
-#include "ros/node_handle.h"
-#include <memory>
 
 namespace mrobot_frame {
 
@@ -25,8 +23,8 @@ bool FrontEndFlow::Run() {
   while (HasData()) {
     if (!ValidData())
       continue;
-    UpdateLaserOdometry();
-    PublishData();
+    if (UpdateLaserOdometry())
+      PublishData();
     // front_end_ptr_->publishPoseVisualization();
   }
   return true;
@@ -56,11 +54,9 @@ bool FrontEndFlow::UpdateLaserOdometry() {
 }
 
 bool FrontEndFlow::PublishData() {
-  if (front_end_ptr_->HasNewKeyFrame()) {
-    KeyFrame key_frame;
-    front_end_ptr_->GetLatestKeyFrame(key_frame);
-    keyframe_pub_ptr_->Publish(key_frame);
-  }
+  KeyFrame key_frame;
+  front_end_ptr_->GetLatestKeyFrame(key_frame);
+  keyframe_pub_ptr_->Publish(key_frame);
   return true;
 }
 

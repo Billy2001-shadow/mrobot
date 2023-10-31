@@ -1,7 +1,5 @@
-#include "ros/init.h"
-#include <ros/ros.h>
-
 #include "mapping/front_end/front_end_flow.hpp"
+#include <ros/ros.h>
 
 using namespace mrobot_frame;
 
