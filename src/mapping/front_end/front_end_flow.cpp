@@ -15,6 +15,9 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle &nh, std::string scan_topic) {
   //发布关键帧
   keyframe_pub_ptr_ =
       std::make_shared<KeyFramePublisher>(nh, "KeyFrame", "laser_link", 10000);
+  //发布优化后的里程计位姿
+  optimized_pose_pub_ptr_ = std::make_shared<OdometryPublisher>(
+      nh, "optimized_pose", "robot_6/odom", "robot_6/base_footprint", 100);
   //前端的核心算法模块
   front_end_ptr_ = std::make_shared<FrontEnd>();
 }
@@ -59,6 +62,8 @@ bool FrontEndFlow::PublishData() {
   KeyFrame key_frame;
   front_end_ptr_->GetLatestKeyFrame(key_frame);
   keyframe_pub_ptr_->Publish(key_frame);
+  optimized_pose_pub_ptr_->Publish(key_frame.corrected_pose,
+                                   key_frame.scan_data.time);
   return true;
 }
 

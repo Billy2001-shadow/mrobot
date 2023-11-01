@@ -34,7 +34,7 @@ public:
   FrontEnd();
   ~FrontEnd();
   //得到一帧点云，就返回一个位姿
-  bool Update(karto::LaserRangeFinder *laser, const LaserScanData &ranges_data,
+  bool Update(karto::LaserRangeFinder *laser, const LaserScanData &scan_data,
               karto::Pose2 &karto_pose);
   void publishPoseVisualization();
   bool HasNewKeyFrame();

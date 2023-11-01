@@ -104,12 +104,12 @@ karto_pose : 最终激光里程计优化后的位姿
 bag的发布频率过慢？ TF的频率跟不上scan的频率
 */
 bool FrontEnd::Update(karto::LaserRangeFinder *laser,
-                      const LaserScanData &ranges_data,
+                      const LaserScanData &scan_data,
                       karto::Pose2 &karto_pose) {
   // ResetParam(); //重置关键帧
 
-  karto::LocalizedRangeScan *range_scan = new karto::LocalizedRangeScan(
-      laser->GetName(), ranges_data.range_readings);
+  karto::LocalizedRangeScan *range_scan =
+      new karto::LocalizedRangeScan(laser->GetName(), scan_data.range_readings);
   range_scan->SetOdometricPose(karto_pose);
   range_scan->SetCorrectedPose(karto_pose);
 
@@ -126,8 +126,10 @@ bool FrontEnd::Update(karto::LaserRangeFinder *laser,
 
     KeyFrame new_key_frame;
     new_key_frame.index = (unsigned int)key_frames_deque_.size();
-    new_key_frame.corrected_pose = corrected_pose;
-    new_key_frame.ranges_data = ranges_data;
+    new_key_frame.corrected_pose[0] = corrected_pose.GetX();
+    new_key_frame.corrected_pose[1] = corrected_pose.GetY();
+    new_key_frame.corrected_pose[2] = corrected_pose.GetHeading();
+    new_key_frame.scan_data = scan_data;
     // key_frames_deque_.push_back(new_key_frame); 目前不需要所有的关键帧
     current_key_frame_ = new_key_frame;
   }

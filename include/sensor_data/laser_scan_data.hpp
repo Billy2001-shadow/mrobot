@@ -11,6 +11,7 @@ public:
   ros::Time time;
   std::vector<double> angles_readings;
   std::vector<double> range_readings;
+  //后续可以加一个size来表示激光雷达数据的数量，在构造函数中初始化
 };
 } // namespace mrobot_frame
 

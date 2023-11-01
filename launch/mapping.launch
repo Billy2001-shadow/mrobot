@@ -15,6 +15,12 @@
     <param name="laser_frame" value="/robot_6/laser"/>
     <param name="odom_frame" value="/robot_6/odom"/>
 
+    <!-- 发布一个静态坐标转换关系 -->
+    <node pkg="tf" type="static_transform_publisher" name="odom_to_robot_6_odom"
+        args="0 0 0 0 0 0 robot_6/odom odom 100" />
+
+
+     
     <!-- <param name="scan_topic" value="scan"/>
     <param name="laser_frame" value="base_laser_link"/>
     <param name="odom_frame" value="odom"/> -->

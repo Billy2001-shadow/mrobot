@@ -10,6 +10,7 @@
 // My LIB
 #include "mapping/front_end/front_end.hpp"
 #include "publisher/key_frame_publisher.hpp"
+#include "publisher/odometry_publisher.hpp"
 #include "subscriber/scan_subscriber.hpp"
 
 namespace mrobot_frame {
@@ -30,7 +31,7 @@ private:
   std::shared_ptr<TFListener> laser2odom_tf_ptr_;
   std::shared_ptr<FrontEnd> front_end_ptr_;
   std::shared_ptr<KeyFramePublisher> keyframe_pub_ptr_;
-
+  std::shared_ptr<OdometryPublisher> optimized_pose_pub_ptr_;
   std::deque<LaserScanData> scan_data_buff_;
   LaserScanData current_scan_data_;
   karto::Pose2 karto_pose;

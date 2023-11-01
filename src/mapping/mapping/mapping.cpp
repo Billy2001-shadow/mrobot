@@ -70,29 +70,27 @@ bool Mapping::InitParam(const YAML::Node &config_node) {
 void Mapping::OccupanyMapping(KeyFrame &current_keyframe) {
 
   //机器人位姿角归一化
-  if (current_keyframe.corrected_pose.GetHeading() > 3.1415926) {
-    current_keyframe.corrected_pose.SetHeading(
-        current_keyframe.corrected_pose.GetHeading() - 2 * 3.1415926);
+  if (current_keyframe.corrected_pose[2] > 3.1415926) {
+    current_keyframe.corrected_pose[2] -= 2 * 3.1415926;
   }
 
-  else if (current_keyframe.corrected_pose.GetHeading() < -3.1415926) {
-    current_keyframe.corrected_pose.SetHeading(
-        current_keyframe.corrected_pose.GetHeading() + 2 * 3.1415926);
+  else if (current_keyframe.corrected_pose[2] < -3.1415926) {
+    current_keyframe.corrected_pose[2] += 2 * 3.1415926;
   }
 
-  Eigen::Vector3f robotPose(current_keyframe.corrected_pose.GetX(),
-                            current_keyframe.corrected_pose.GetY(),
-                            current_keyframe.corrected_pose.GetHeading());
+  Eigen::Vector3d robotPose(current_keyframe.corrected_pose[0],
+                            current_keyframe.corrected_pose[1],
+                            current_keyframe.corrected_pose[2]);
 
   //激光雷达的栅格地图坐标
   GridIndex robotIndex = ConvertWorld2GridIndex(robotPose(0), robotPose(1));
 
   //每一个激光束
-  for (int id = 0; id < current_keyframe.ranges_data.range_readings.size();
+  for (int id = 0; id < current_keyframe.scan_data.range_readings.size();
        id++) {
 
-    double dist = current_keyframe.ranges_data.range_readings[id];
-    double angle = current_keyframe.ranges_data.angles_readings[id];
+    double dist = current_keyframe.scan_data.range_readings[id];
+    double angle = current_keyframe.scan_data.angles_readings[id];
 
     if (std::isinf(dist) || std::isnan(dist) || (std::abs(dist) >= 20))
       continue;

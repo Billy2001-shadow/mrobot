@@ -12,22 +12,17 @@ void KeyFrameSubscriber::msg_callback(
     const mrobot_frame::keyframemsgConstPtr &key_frame_msg_ptr) {
   KeyFrame key_frame;
 
-  double x, y, theta;
-  x = key_frame_msg_ptr->Pose2d.at(0);
-  y = key_frame_msg_ptr->Pose2d.at(1);
-  theta = key_frame_msg_ptr->Pose2d.at(2);
+  key_frame.corrected_pose[0] = key_frame_msg_ptr->Pose2d.at(0);
+  key_frame.corrected_pose[1] = key_frame_msg_ptr->Pose2d.at(1);
+  key_frame.corrected_pose[2] = key_frame_msg_ptr->Pose2d.at(2);
 
-  key_frame.corrected_pose.SetX(x);
-  key_frame.corrected_pose.SetY(y);
-  key_frame.corrected_pose.SetHeading(theta);
-
-  key_frame.ranges_data.time = key_frame_msg_ptr->header.stamp;
+  key_frame.scan_data.time = key_frame_msg_ptr->header.stamp;
   for (int i = 0; i < key_frame_msg_ptr->angles.size(); i++) {
-    key_frame.ranges_data.angles_readings.push_back(
+    key_frame.scan_data.angles_readings.push_back(
         key_frame_msg_ptr->angles.at(i));
   }
   for (int i = 0; i < key_frame_msg_ptr->readings.size(); i++) {
-    key_frame.ranges_data.range_readings.push_back(
+    key_frame.scan_data.range_readings.push_back(
         key_frame_msg_ptr->readings.at(i));
   }
 

@@ -12,6 +12,19 @@ OdometryPublisher::OdometryPublisher(ros::NodeHandle &nh,
   odometry_.child_frame_id = child_frame_id;
 }
 
+void OdometryPublisher::Publish(const double odom_pose[3], ros::Time ros_time) {
+  // ros::Time ros_time((float)time);
+  Eigen::Matrix4f transform_matrix;
+  //先将2D的位姿odom_pose转换成转换矩阵形式transform_matrix
+  Eigen::Matrix3f rotation_matrix;
+  rotation_matrix << cos(odom_pose[2]), -sin(odom_pose[2]), 0,
+      sin(odom_pose[2]), cos(odom_pose[2]), 0, 0, 0, 1;
+  transform_matrix << rotation_matrix,
+      Eigen::Vector3f(odom_pose[0], odom_pose[1], 0), 0, 0, 0, 1;
+
+  PublishData(transform_matrix, ros_time);
+}
+
 void OdometryPublisher::Publish(const Eigen::Matrix4f &transform_matrix,
                                 double time) {
   ros::Time ros_time((float)time);
