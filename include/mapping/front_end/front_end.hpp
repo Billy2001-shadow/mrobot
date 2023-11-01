@@ -17,7 +17,7 @@
 #include "mapping/spa_solver/spa_solver.hpp"
 #include "open_karto/Mapper.h"
 #include "sensor_data/key_frame.hpp"
-#include "sensor_data/ranges_data.hpp"
+#include "sensor_data/laser_scan_data.hpp"
 #include "subscriber/tf_listener.hpp"
 
 namespace mrobot_frame {
@@ -27,14 +27,14 @@ public:
   //这个结构体是否需要 考量一下
   struct Frame {
     karto::Pose2 karto_pose;
-    RangesData ranges_data;
+    LaserScanData ranges_data;
   };
 
 public:
   FrontEnd();
   ~FrontEnd();
   //得到一帧点云，就返回一个位姿
-  bool Update(karto::LaserRangeFinder *laser, const RangesData &ranges_data,
+  bool Update(karto::LaserRangeFinder *laser, const LaserScanData &ranges_data,
               karto::Pose2 &karto_pose);
   void publishPoseVisualization();
   bool HasNewKeyFrame();

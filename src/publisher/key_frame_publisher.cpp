@@ -20,11 +20,13 @@ void KeyFramePublisher::Publish(KeyFrame &key_frame) {
   keyframe_stamped.Pose2d.at(1) = key_frame.corrected_pose.GetY();
   keyframe_stamped.Pose2d.at(2) = key_frame.corrected_pose.GetHeading();
 
-  for (int i = 0; i < key_frame.ranges_data.angles.size(); i++) {
-    keyframe_stamped.angles.push_back(key_frame.ranges_data.angles.at(i));
+  for (int i = 0; i < key_frame.ranges_data.angles_readings.size(); i++) {
+    keyframe_stamped.angles.push_back(
+        key_frame.ranges_data.angles_readings.at(i));
   }
-  for (int i = 0; i < key_frame.ranges_data.readings.size(); i++) {
-    keyframe_stamped.readings.push_back(key_frame.ranges_data.readings.at(i));
+  for (int i = 0; i < key_frame.ranges_data.range_readings.size(); i++) {
+    keyframe_stamped.readings.push_back(
+        key_frame.ranges_data.range_readings.at(i));
   }
   publisher_.publish(keyframe_stamped);
 }

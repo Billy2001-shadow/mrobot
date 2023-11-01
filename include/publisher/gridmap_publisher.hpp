@@ -20,7 +20,7 @@ public:
 private:
   ros::NodeHandle nh_;
   ros::Publisher publisher_;
-  std::string frame_id_ = "odom";
+  std::string frame_id_ = "/robot_6/odom";
 };
 } // namespace mrobot_frame
 

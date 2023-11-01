@@ -88,10 +88,11 @@ void Mapping::OccupanyMapping(KeyFrame &current_keyframe) {
   GridIndex robotIndex = ConvertWorld2GridIndex(robotPose(0), robotPose(1));
 
   //每一个激光束
-  for (int id = 0; id < current_keyframe.ranges_data.readings.size(); id++) {
+  for (int id = 0; id < current_keyframe.ranges_data.range_readings.size();
+       id++) {
 
-    double dist = current_keyframe.ranges_data.readings[id];
-    double angle = current_keyframe.ranges_data.angles[id];
+    double dist = current_keyframe.ranges_data.range_readings[id];
+    double angle = current_keyframe.ranges_data.angles_readings[id];
 
     if (std::isinf(dist) || std::isnan(dist) || (std::abs(dist) >= 20))
       continue;

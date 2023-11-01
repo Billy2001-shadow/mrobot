@@ -1,12 +1,14 @@
 #ifndef MROBOT_FRAME_TF_LISTENER_HPP_
 #define MROBOT_FRAME_TF_LISTENER_HPP_
 
+// ROS LIB
+#include <ros/ros.h>
+#include <tf/transform_listener.h>
+
 #include <string>
 
 #include "open_karto/Karto.h"
 #include <Eigen/Dense>
-#include <ros/ros.h>
-#include <tf/transform_listener.h>
 
 namespace mrobot_frame {
 class TFListener {
@@ -15,14 +17,10 @@ public:
              std::string child_frame_id);
   TFListener() = default;
 
-  bool LookupData(Eigen::Matrix4f &transform_matrix);
-  bool TransformToVector(Eigen::Vector3d &transform_vector);
-  bool TransformToVector(std::vector<Eigen::Vector2f> &transform_pose_vector);
-  bool getOdomPose(karto::Pose2 &karto_pose, const ros::Time &t);
-
-private:
-  bool TransformToMatrix(const tf::StampedTransform &transform,
-                         Eigen::Matrix4f &transform_matrix);
+  // bool LookupData(Eigen::Matrix4f &transform_matrix);
+  // 获取t时刻下 轮式里程计的位姿
+  bool getRelativePose(karto::Pose2 &karto_pose, const ros::Time &t);
+  bool getRelativePose(double relative_pose[3], const ros::Time &t);
 
 private:
   ros::NodeHandle nh_;

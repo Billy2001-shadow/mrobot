@@ -1,59 +1,61 @@
-#include "subscriber/cloud_subscriber.hpp"
-#include <vector>
+#include "subscriber/scan_subscriber.hpp"
 
 namespace mrobot_frame {
 
-CloudSubscriber::CloudSubscriber(ros::NodeHandle &nh, std::string topic_name,
-                                 size_t buff_size)
+ScanSubscriber::ScanSubscriber(ros::NodeHandle &nh, std::string topic_name,
+                               size_t buff_size)
     : nh_(nh) {
+  // laser_frame 和 odom_frame 是为了获取 ？
+  nh_.param<std::string>("laser_frame", laser_frame_, "base_laser_link");
+  nh_.param<std::string>("odom_frame", odom_frame_, "odom");
 
-  nh.param<std::string>("laser_frame", laser_frame_, "base_laser_link");
-  nh.param<std::string>("odom_frame", odom_frame_, "odom");
-  subscriber_ = nh_.subscribe(topic_name, buff_size,
-                              &CloudSubscriber::msg_callback, this);
+  subscriber_ =
+      nh_.subscribe(topic_name, buff_size, &ScanSubscriber::msg_callback, this);
 
   dataset_ = new karto::Dataset();
 }
 
-CloudSubscriber::~CloudSubscriber() {
+ScanSubscriber::~ScanSubscriber() {
   if (dataset_)
     delete dataset_;
 }
 
-void CloudSubscriber::msg_callback(
-    const sensor_msgs::LaserScan::ConstPtr &scan_msg) {
+void ScanSubscriber::msg_callback(
+    const sensor_msgs::LaserScan::ConstPtr &scan_msg_ptr) {
   buff_mutex_.lock();
-  RangesData ranges_data;
-  ranges_data.time = scan_msg->header.stamp;
-  double angle_reading = scan_msg->angle_min;
-  double angle_increment = (scan_msg->angle_max - scan_msg->angle_min) /
-                           (scan_msg->ranges.size() - 1);
-  for (std::vector<float>::const_iterator it = scan_msg->ranges.begin();
-       it != scan_msg->ranges.end(); it++) {
-    ranges_data.readings.push_back(*it);
-    ranges_data.angles.push_back(angle_reading);
-    angle_reading += angle_increment;
+  LaserScanData laser_scan_data;
+  laser_scan_data.time = scan_msg_ptr->header.stamp;
+  for (int i = 0; i < scan_msg_ptr->ranges.size(); i++) {
+    if (scan_msg_ptr->ranges[i] < scan_msg_ptr->range_min ||
+        scan_msg_ptr->ranges[i] > scan_msg_ptr->range_max) {
+      double angle =
+          scan_msg_ptr->angle_min + i * scan_msg_ptr->angle_increment;
+      laser_scan_data.range_readings.push_back(0);
+      laser_scan_data.angles_readings.push_back(angle);
+      continue;
+    }
+    double angle = scan_msg_ptr->angle_min + i * scan_msg_ptr->angle_increment;
+    laser_scan_data.range_readings.push_back(scan_msg_ptr->ranges[i]);
+    laser_scan_data.angles_readings.push_back(angle);
   }
-
-  new_ranges_data_.push_back(ranges_data);
+  new_scan_data_.push_back(laser_scan_data);
   buff_mutex_.unlock();
 
-  laser_ = getLaser(scan_msg);
+  laser_ = getLaser(scan_msg_ptr);
 }
 
-void CloudSubscriber::ParseData(std::deque<RangesData> &ranges_data_buff) {
+void ScanSubscriber::ParseData(std::deque<LaserScanData> &ranges_data_buff) {
   buff_mutex_.lock();
-
-  if (new_ranges_data_.size() > 0) {
-    ranges_data_buff.insert(ranges_data_buff.end(), new_ranges_data_.begin(),
-                            new_ranges_data_.end());
-    new_ranges_data_.clear();
+  if (new_scan_data_.size() > 0) {
+    ranges_data_buff.insert(ranges_data_buff.end(), new_scan_data_.begin(),
+                            new_scan_data_.end());
+    new_scan_data_.clear();
   }
   buff_mutex_.unlock();
 }
 
 karto::LaserRangeFinder *
-CloudSubscriber::getLaser(const sensor_msgs::LaserScan::ConstPtr &scan) {
+ScanSubscriber::getLaser(const sensor_msgs::LaserScan::ConstPtr &scan) {
   // Check whether we know about this laser yet
   if (lasers_.find(scan->header.frame_id) == lasers_.end()) {
     // New laser; need to create a Karto device for it.
@@ -123,6 +125,6 @@ CloudSubscriber::getLaser(const sensor_msgs::LaserScan::ConstPtr &scan) {
   return lasers_[scan->header.frame_id];
 }
 
-karto::LaserRangeFinder *CloudSubscriber::getLaser() { return laser_; }
+karto::LaserRangeFinder *ScanSubscriber::getLaser() { return laser_; }
 
 } // namespace mrobot_frame

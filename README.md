@@ -104,3 +104,77 @@ roslaunch mrobot_frame mapping.launch
 
 
 
+
+
+
+
+
+
+
+
+### 点云订阅文件修改
+
+```
+点云订阅文件中的dataset_这个玩意能不能去掉 
+
+
+class RangesData {
+
+public:
+  ros::Time time;
+  std::vector<double> angles;
+  std::vector<double> readings;
+};
+
+必须对FrontEnd::Update动刀，
+
+关键帧也需要动刀
+```
+
+
+
+
+
+```
+搞明白订阅话题是什么：
+
+1.scan_topic
+
+
+2. laser_frame  odom_frame  tf这个类里面需要用
+
+
+3.设备号里面的laser_frame和odom_frame会不会受到影响？
+
+
+getOdomPose 函数是需要的
+
+
+没有karto_pose和设备号就不能构造range_scan
+没有range_scan就不能进行mapper_->Process
+
+
+  // verify number of range readings in LaserRangeScan matches the number of expected range readings
+    if (pLaserRangeScan->GetNumberOfRangeReadings() != GetNumberOfRangeReadings())
+    {
+      std::cout << "LaserRangeScan contains " << pLaserRangeScan->GetNumberOfRangeReadings()
+                << " range readings, expected " << GetNumberOfRangeReadings() << std::endl;
+      return false;
+    }
+```
+
+
+
+
+
+
+
+![image-20231101120745415](/home/cw/test/mrobot_ws/src/mrobot/README.assets/image-20231101120745415.png)
+
+
+
+![image-20231101121511866](/home/cw/test/mrobot_ws/src/mrobot/README.assets/image-20231101121511866.png)
+
+感觉像是机器人里程计位姿在odom位姿下是没进行校正的，而我们用的odom/rotot6实质上是一个未进行矫正的全局坐标系。所以位姿在
+
+在map坐标系下建图，点云是否会和障碍物重合呢？

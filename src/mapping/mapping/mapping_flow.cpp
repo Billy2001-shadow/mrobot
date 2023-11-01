@@ -7,8 +7,8 @@ MappingFlow::MappingFlow(ros::NodeHandle &nh) {
   keyframe_sub_ptr_ =
       std::make_shared<KeyFrameSubscriber>(nh, "KeyFrame", 10000);
   //发布者：占据栅格地图
-  occupancygrid_pub_ptr_ =
-      std::make_shared<GridmapPublisher>(nh, "occupancygrid", "odom", 1);
+  occupancygrid_pub_ptr_ = std::make_shared<GridmapPublisher>(
+      nh, "occupancygrid", "robot_6/odom", 1);
 
   //根据历史关键帧建图
   mapping_ptr_ = std::make_shared<Mapping>(); //调用核心功能类

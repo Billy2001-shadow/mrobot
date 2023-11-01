@@ -23,10 +23,12 @@ void KeyFrameSubscriber::msg_callback(
 
   key_frame.ranges_data.time = key_frame_msg_ptr->header.stamp;
   for (int i = 0; i < key_frame_msg_ptr->angles.size(); i++) {
-    key_frame.ranges_data.angles.push_back(key_frame_msg_ptr->angles.at(i));
+    key_frame.ranges_data.angles_readings.push_back(
+        key_frame_msg_ptr->angles.at(i));
   }
   for (int i = 0; i < key_frame_msg_ptr->readings.size(); i++) {
-    key_frame.ranges_data.readings.push_back(key_frame_msg_ptr->readings.at(i));
+    key_frame.ranges_data.range_readings.push_back(
+        key_frame_msg_ptr->readings.at(i));
   }
 
   new_key_frame_.push_back(key_frame);

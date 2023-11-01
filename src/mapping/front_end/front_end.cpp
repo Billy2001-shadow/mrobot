@@ -1,5 +1,6 @@
 #include "mapping/front_end/front_end.hpp"
 #include "global_defination/global_defination.h"
+
 namespace mrobot_frame {
 
 FrontEnd::FrontEnd() {
@@ -103,11 +104,12 @@ karto_pose : 最终激光里程计优化后的位姿
 bag的发布频率过慢？ TF的频率跟不上scan的频率
 */
 bool FrontEnd::Update(karto::LaserRangeFinder *laser,
-                      const RangesData &ranges_data, karto::Pose2 &karto_pose) {
+                      const LaserScanData &ranges_data,
+                      karto::Pose2 &karto_pose) {
   // ResetParam(); //重置关键帧
 
-  karto::LocalizedRangeScan *range_scan =
-      new karto::LocalizedRangeScan(laser->GetName(), ranges_data.readings);
+  karto::LocalizedRangeScan *range_scan = new karto::LocalizedRangeScan(
+      laser->GetName(), ranges_data.range_readings);
   range_scan->SetOdometricPose(karto_pose);
   range_scan->SetCorrectedPose(karto_pose);
 
